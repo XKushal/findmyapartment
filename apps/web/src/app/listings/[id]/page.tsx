@@ -1,4 +1,8 @@
 import { getListingById } from "@/features/listings/queries";
+import { ListingArchiveButton } from "@/features/listings/components/listing-archive-button";
+import { ListingImageGallery } from "@/features/listings/components/listing-image-gallery";
+import { auth } from "@/server/auth/auth";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -11,22 +15,120 @@ export default async function ListingDetailPage({
   params,
 }: ListingDetailPageProps) {
   const { id } = await params;
-  const listing = await getListingById(id);
+  const [listing, session] = await Promise.all([getListingById(id), auth()]);
 
   if (!listing) {
     notFound();
   }
 
+  const isOwner = Boolean(session?.user?.id && session.user.id === listing.ownerId);
+  const hasContactInfo = Boolean(listing.contactEmail || listing.contactPhone);
+  const details = [
+    ["Deposit", listing.deposit === null ? "Not listed" : `$${listing.deposit}`],
+    ["Utilities", listing.utilitiesIncluded ? "Included" : "Not included"],
+    [
+      "Available",
+      listing.availableFrom
+        ? listing.availableFrom.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : "Ask poster",
+    ],
+    ["Lease", listing.leaseDuration ?? "Flexible"],
+    ["Distance", listing.distanceToCampus ?? "Not listed"],
+    [
+      "Beds / baths",
+      `${listing.bedrooms ?? "?"} bed / ${listing.bathrooms ?? "?"} bath`,
+    ],
+  ];
+
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <div className="mb-6 text-sm font-medium uppercase text-emerald-700">
-        {listing.type}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="text-sm font-medium uppercase text-emerald-700">
+          {listing.type}
+        </div>
+        {isOwner ? (
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/listings/${listing.id}/edit`}
+              className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+            >
+              Edit
+            </Link>
+            <ListingArchiveButton listingId={listing.id} />
+          </div>
+        ) : null}
       </div>
       <h1 className="text-4xl font-semibold text-zinc-950">{listing.title}</h1>
       <p className="mt-4 text-xl font-medium text-zinc-950">
         ${listing.rent}/month
       </p>
       <p className="mt-6 leading-8 text-zinc-700">{listing.description}</p>
+
+      <ListingImageGallery imageUrls={listing.imageUrls} />
+
+      <dl className="mt-8 grid gap-4 sm:grid-cols-2">
+        {details.map(([label, value]) => (
+          <div key={label} className="border-t border-zinc-200 pt-4">
+            <dt className="text-sm text-zinc-500">{label}</dt>
+            <dd className="mt-1 font-medium text-zinc-950">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {listing.address ? (
+        <div className="mt-8 border-t border-zinc-200 pt-4">
+          <p className="text-sm text-zinc-500">Address</p>
+          <p className="mt-1 font-medium text-zinc-950">{listing.address}</p>
+        </div>
+      ) : null}
+
+      {!isOwner && hasContactInfo ? (
+        <section className="mt-8 rounded-md border border-emerald-200 bg-emerald-50 px-5 py-4">
+          <p className="text-sm font-semibold text-emerald-900">
+            Contact poster
+          </p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {listing.contactEmail ? (
+              <a
+                href={`mailto:${listing.contactEmail}?subject=${encodeURIComponent(
+                  `Interested in ${listing.title}`,
+                )}`}
+                className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+              >
+                Email poster
+              </a>
+            ) : null}
+            {listing.contactPhone ? (
+              <a
+                href={`tel:${listing.contactPhone}`}
+                className="rounded-md border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-950 hover:bg-emerald-100"
+              >
+                Call or text
+              </a>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
+      {listing.amenities.length > 0 ? (
+        <div className="mt-8">
+          <p className="text-sm font-medium text-zinc-950">Amenities</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {listing.amenities.map((amenity) => (
+              <span
+                key={amenity}
+                className="rounded-md border border-zinc-200 px-3 py-1 text-sm text-zinc-700"
+              >
+                {amenity}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

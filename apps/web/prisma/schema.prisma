@@ -44,6 +44,8 @@ model Listing {
   leaseDuration     String?
   address           String?
   distanceToCampus  String?
+  contactEmail      String?
+  contactPhone      String?
   bedrooms          Int?
   bathrooms         Float?
   amenities         String[]

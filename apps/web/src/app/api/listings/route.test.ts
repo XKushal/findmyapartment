@@ -24,6 +24,8 @@ const listing = {
   leaseDuration: "12 months",
   address: null,
   distanceToCampus: "0.5 miles",
+  contactEmail: null,
+  contactPhone: null,
   bedrooms: 1,
   bathrooms: 1,
   amenities: ["Laundry"],

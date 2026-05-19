@@ -10,6 +10,19 @@ const imageUrlSchema = z
   .url()
   .openapi({ example: "https://example.com/listing-photo.jpg" });
 
+const nullableEmailSchema = z
+  .string()
+  .trim()
+  .email()
+  .nullable();
+
+const nullablePhoneSchema = z
+  .string()
+  .trim()
+  .min(7)
+  .max(30)
+  .nullable();
+
 export const listingQuerySchema = z.object({
   type: listingTypeSchema.optional(),
 });
@@ -31,6 +44,8 @@ export const listingResponseSchema = z.object({
   leaseDuration: z.string().nullable(),
   address: z.string().nullable(),
   distanceToCampus: z.string().nullable(),
+  contactEmail: z.string().email().nullable(),
+  contactPhone: z.string().nullable(),
   bedrooms: z.number().int().nonnegative().nullable(),
   bathrooms: z.number().nonnegative().nullable(),
   amenities: z.array(z.string()),
@@ -60,6 +75,8 @@ export const listingCreateBodySchema = z.object({
   leaseDuration: z.string().trim().min(1).nullable().default(null),
   address: z.string().trim().min(1).nullable().default(null),
   distanceToCampus: z.string().trim().min(1).nullable().default(null),
+  contactEmail: nullableEmailSchema.default(null),
+  contactPhone: nullablePhoneSchema.default(null),
   bedrooms: z.number().int().nonnegative().nullable().default(null),
   bathrooms: z.number().nonnegative().nullable().default(null),
   amenities: z.array(z.string().trim().min(1)).default([]),
@@ -82,6 +99,8 @@ export const listingUpdateBodySchema = z
     leaseDuration: z.string().trim().min(1).nullable().optional(),
     address: z.string().trim().min(1).nullable().optional(),
     distanceToCampus: z.string().trim().min(1).nullable().optional(),
+    contactEmail: z.string().trim().email().nullable().optional(),
+    contactPhone: z.string().trim().min(7).max(30).nullable().optional(),
     bedrooms: z.number().int().nonnegative().nullable().optional(),
     bathrooms: z.number().nonnegative().nullable().optional(),
     amenities: z.array(z.string().trim().min(1)).optional(),
@@ -111,6 +130,8 @@ type ListingForApi = {
   leaseDuration: string | null;
   address: string | null;
   distanceToCampus: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   bedrooms: number | null;
   bathrooms: number | null;
   amenities: string[];
@@ -123,6 +144,8 @@ type ListingForApi = {
 export function serializeListing(listing: ListingForApi): ListingApiResponse {
   return listingResponseSchema.parse({
     ...listing,
+    contactEmail: listing.contactEmail ?? null,
+    contactPhone: listing.contactPhone ?? null,
     availableFrom: listing.availableFrom?.toISOString() ?? null,
     createdAt: listing.createdAt.toISOString(),
     updatedAt: listing.updatedAt.toISOString(),
