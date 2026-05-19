@@ -1,5 +1,6 @@
 import {
   listingCreateBodySchema,
+  listingQueryInputFromParams,
   listingQuerySchema,
   serializeListing,
 } from "@/features/listings/schemas";
@@ -15,15 +16,7 @@ export async function GET(request: Request) {
   return withApiErrorHandling(async () => {
     const url = new URL(request.url);
     const query = throwIfInvalid(
-      listingQuerySchema.safeParse({
-        type: url.searchParams.get("type") ?? undefined,
-        rentMin: url.searchParams.get("rentMin") ?? undefined,
-        rentMax: url.searchParams.get("rentMax") ?? undefined,
-        bedroomsMin: url.searchParams.get("bedroomsMin") ?? undefined,
-        bathroomsMin: url.searchParams.get("bathroomsMin") ?? undefined,
-        availableBy: url.searchParams.get("availableBy") ?? undefined,
-        petPolicy: url.searchParams.get("petPolicy") ?? undefined,
-      }),
+      listingQuerySchema.safeParse(listingQueryInputFromParams(url.searchParams)),
     );
 
     const listings = await getActiveListings(query);

@@ -34,10 +34,18 @@ const optionalQueryNumberSchema = z.preprocess(
   (value) => (value === "" || value === null ? undefined : value),
   z.coerce.number().nonnegative().optional(),
 );
+const optionalListingTypeQuerySchema = z.preprocess(
+  (value) => (value === "" || value === null ? undefined : value),
+  listingTypeSchema.optional(),
+);
+const optionalPetPolicyQuerySchema = z.preprocess(
+  (value) => (value === "" || value === null ? undefined : value),
+  petPolicySchema.optional(),
+);
 
 export const listingQuerySchema = z
   .object({
-    type: listingTypeSchema.optional(),
+    type: optionalListingTypeQuerySchema,
     rentMin: optionalQueryNumberSchema,
     rentMax: optionalQueryNumberSchema,
     bedroomsMin: optionalQueryNumberSchema.pipe(z.number().int().optional()),
@@ -47,7 +55,7 @@ export const listingQuerySchema = z
         (value) => (value === "" || value === null ? undefined : value),
         z.string().date().optional(),
       ),
-    petPolicy: petPolicySchema.optional(),
+    petPolicy: optionalPetPolicyQuerySchema,
   })
   .refine(
     (value) =>
@@ -153,6 +161,29 @@ export type ListingApiResponse = z.infer<typeof listingResponseSchema>;
 export type ListingQueryInput = z.infer<typeof listingQuerySchema>;
 export type ListingCreateInput = z.infer<typeof listingCreateBodySchema>;
 export type ListingUpdateInput = z.infer<typeof listingUpdateBodySchema>;
+
+type ListingQueryParams =
+  | URLSearchParams
+  | Record<string, string | string[] | null | undefined>;
+
+function queryParam(params: ListingQueryParams, name: string) {
+  const value =
+    params instanceof URLSearchParams ? params.get(name) : params[name];
+
+  return Array.isArray(value) ? value[0] : (value ?? undefined);
+}
+
+export function listingQueryInputFromParams(params: ListingQueryParams) {
+  return {
+    type: queryParam(params, "type"),
+    rentMin: queryParam(params, "rentMin") ?? queryParam(params, "min"),
+    rentMax: queryParam(params, "rentMax") ?? queryParam(params, "max"),
+    bedroomsMin: queryParam(params, "bedroomsMin"),
+    bathroomsMin: queryParam(params, "bathroomsMin"),
+    availableBy: queryParam(params, "availableBy"),
+    petPolicy: queryParam(params, "petPolicy"),
+  };
+}
 
 type ListingForApi = {
   id: string;

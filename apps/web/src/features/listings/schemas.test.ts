@@ -66,6 +66,29 @@ describe("listing API schemas", () => {
     });
   });
 
+  it("treats empty optional discovery filters as omitted", () => {
+    const parsed = listingQuerySchema.safeParse({
+      rentMin: "1000",
+      rentMax: "1600",
+      type: "",
+      bedroomsMin: "",
+      bathroomsMin: "",
+      availableBy: "",
+      petPolicy: "",
+    });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success ? parsed.data : null).toEqual({
+      rentMin: 1000,
+      rentMax: 1600,
+      type: undefined,
+      bedroomsMin: undefined,
+      bathroomsMin: undefined,
+      availableBy: undefined,
+      petPolicy: undefined,
+    });
+  });
+
   it("rejects inverted rent filters", () => {
     const parsed = listingQuerySchema.safeParse({
       rentMin: "1400",

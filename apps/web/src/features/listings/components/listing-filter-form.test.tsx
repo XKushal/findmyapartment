@@ -28,6 +28,12 @@ function hasInputDefault(node: unknown, name: string, defaultValue: string): boo
   return hasInputDefault(children, name, defaultValue);
 }
 
+function formKey(node: unknown) {
+  return typeof node === "object" && node !== null && "key" in node
+    ? String((node as { key: unknown }).key)
+    : null;
+}
+
 describe("ListingFilterForm", () => {
   it("renders current listing discovery filters", () => {
     const form = ListingFilterForm({
@@ -47,5 +53,20 @@ describe("ListingFilterForm", () => {
     expect(hasInputDefault(form, "bedroomsMin", "1")).toBe(true);
     expect(hasInputDefault(form, "bathroomsMin", "1.5")).toBe(true);
     expect(hasInputDefault(form, "availableBy", "2026-08-01")).toBe(true);
+  });
+
+  it("uses filter values as the form key so cleared dropdowns remount to defaults", () => {
+    const selectedForm = ListingFilterForm({
+      filters: {
+        type: "ROOM",
+        petPolicy: "PETS_ALLOWED",
+      },
+    });
+    const clearedForm = ListingFilterForm({
+      filters: {},
+    });
+
+    expect(formKey(selectedForm)).toBe("||ROOM||||PETS_ALLOWED");
+    expect(formKey(clearedForm)).toBe("||||||");
   });
 });
