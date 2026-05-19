@@ -1,6 +1,6 @@
-import Link from "next/link";
-
 import { type ListingQueryInput } from "@/features/listings/schemas";
+
+export const LISTING_FILTER_FORM_ID = "listing-filter-form";
 
 type ListingFilterFormProps = {
   filters: ListingQueryInput;
@@ -10,9 +10,23 @@ function value(value: string | number | undefined) {
   return value === undefined ? "" : String(value);
 }
 
+function filterFormKey(filters: ListingQueryInput) {
+  return [
+    value(filters.rentMin),
+    value(filters.rentMax),
+    filters.type ?? "",
+    value(filters.bedroomsMin),
+    value(filters.bathroomsMin),
+    filters.availableBy ?? "",
+    filters.petPolicy ?? "",
+  ].join("|");
+}
+
 export function ListingFilterForm({ filters }: ListingFilterFormProps) {
   return (
     <form
+      key={filterFormKey(filters)}
+      id={LISTING_FILTER_FORM_ID}
       action="/listings"
       className="mb-8 grid gap-4 rounded-md border border-zinc-200 p-4"
     >
@@ -143,21 +157,6 @@ export function ListingFilterForm({ filters }: ListingFilterFormProps) {
             <option value="UNKNOWN">Not specified</option>
           </select>
         </div>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="submit"
-          className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-        >
-          Apply filters
-        </button>
-        <Link
-          href="/listings"
-          className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-zinc-100"
-        >
-          Clear
-        </Link>
       </div>
     </form>
   );

@@ -93,6 +93,67 @@ describe("GET /api/listings", () => {
     });
   });
 
+  it("accepts min and max aliases for rent filters", async () => {
+    vi.mocked(getActiveListings).mockResolvedValue([listing]);
+
+    const response = await GET(
+      new Request("http://localhost:3000/api/listings?min=1100&max=1600"),
+    );
+
+    expect(response.status).toBe(200);
+    expect(getActiveListings).toHaveBeenCalledWith({
+      type: undefined,
+      rentMin: 1100,
+      rentMax: 1600,
+      bedroomsMin: undefined,
+      bathroomsMin: undefined,
+      availableBy: undefined,
+      petPolicy: undefined,
+    });
+  });
+
+  it("ignores empty trailing filter params instead of dropping valid filters", async () => {
+    vi.mocked(getActiveListings).mockResolvedValue([listing]);
+
+    const response = await GET(
+      new Request(
+        "http://localhost:3000/api/listings?rentMin=1000&rentMax=1600&type=&bedroomsMin=&bathroomsMin=&availableBy=&petPolicy=",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect(getActiveListings).toHaveBeenCalledWith({
+      type: undefined,
+      rentMin: 1000,
+      rentMax: 1600,
+      bedroomsMin: undefined,
+      bathroomsMin: undefined,
+      availableBy: undefined,
+      petPolicy: undefined,
+    });
+  });
+
+  it("uses a single non-empty filter when the rest are empty", async () => {
+    vi.mocked(getActiveListings).mockResolvedValue([listing]);
+
+    const response = await GET(
+      new Request(
+        "http://localhost:3000/api/listings?rentMin=&rentMax=&type=ROOM&bedroomsMin=&bathroomsMin=&availableBy=&petPolicy=",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect(getActiveListings).toHaveBeenCalledWith({
+      type: "ROOM",
+      rentMin: undefined,
+      rentMax: undefined,
+      bedroomsMin: undefined,
+      bathroomsMin: undefined,
+      availableBy: undefined,
+      petPolicy: undefined,
+    });
+  });
+
   it("returns a validation error for unsupported filters", async () => {
     const response = await GET(
       new Request("http://localhost:3000/api/listings?type=HOUSE"),
