@@ -7,6 +7,8 @@ import {
   createListing,
   updateListing,
 } from "@/features/listings/mutations";
+import { authRequired, forbidden } from "@/server/api/errors";
+import { requireCurrentUser } from "@/server/auth/current-user";
 
 vi.mock("@/features/listings/queries", () => ({
   getActiveListings: vi.fn(),
@@ -17,6 +19,10 @@ vi.mock("@/features/listings/mutations", () => ({
   archiveListing: vi.fn(),
   createListing: vi.fn(),
   updateListing: vi.fn(),
+}));
+
+vi.mock("@/server/auth/current-user", () => ({
+  requireCurrentUser: vi.fn(),
 }));
 
 const listing = {
@@ -46,6 +52,11 @@ describe("local listing write APIs", () => {
     vi.mocked(archiveListing).mockReset();
     vi.mocked(createListing).mockReset();
     vi.mocked(updateListing).mockReset();
+    vi.mocked(requireCurrentUser).mockResolvedValue({
+      id: "507f1f77bcf86cd799439099",
+      email: "owner@example.com",
+      name: "Owner",
+    });
   });
 
   it("creates a listing from a valid request body", async () => {
@@ -87,6 +98,7 @@ describe("local listing write APIs", () => {
         type: listing.type,
         status: "ACTIVE",
       }),
+      "507f1f77bcf86cd799439099",
     );
   });
 
@@ -137,7 +149,11 @@ describe("local listing write APIs", () => {
         },
       },
     });
-    expect(updateListing).toHaveBeenCalledWith(listing.id, { rent: 700 });
+    expect(updateListing).toHaveBeenCalledWith(
+      listing.id,
+      { rent: 700 },
+      "507f1f77bcf86cd799439099",
+    );
   });
 
   it("returns a structured not-found error when updating a missing listing", async () => {
@@ -156,6 +172,28 @@ describe("local listing write APIs", () => {
       error: {
         code: "LISTING_NOT_FOUND",
         status: 404,
+      },
+    });
+  });
+
+  it("returns FORBIDDEN when updating another user's listing", async () => {
+    vi.mocked(updateListing).mockRejectedValue(
+      forbidden("Only the listing owner can update this listing."),
+    );
+
+    const response = await PATCH(
+      new Request("http://localhost:3000/api/listings/507f1f77bcf86cd799439011", {
+        method: "PATCH",
+        body: JSON.stringify({ rent: 700 }),
+      }),
+      { params: Promise.resolve({ id: listing.id }) },
+    );
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({
+      error: {
+        code: "FORBIDDEN",
+        status: 403,
       },
     });
   });
@@ -182,6 +220,34 @@ describe("local listing write APIs", () => {
         },
       },
     });
-    expect(archiveListing).toHaveBeenCalledWith(listing.id);
+    expect(archiveListing).toHaveBeenCalledWith(
+      listing.id,
+      "507f1f77bcf86cd799439099",
+    );
+  });
+
+  it("returns AUTH_REQUIRED when creating without a session", async () => {
+    vi.mocked(requireCurrentUser).mockRejectedValue(authRequired());
+
+    const response = await POST(
+      new Request("http://localhost:3000/api/listings", {
+        method: "POST",
+        body: JSON.stringify({
+          title: listing.title,
+          type: listing.type,
+          description: listing.description,
+          rent: listing.rent,
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(401);
+    await expect(response.json()).resolves.toMatchObject({
+      error: {
+        code: "AUTH_REQUIRED",
+        status: 401,
+      },
+    });
+    expect(createListing).not.toHaveBeenCalled();
   });
 });

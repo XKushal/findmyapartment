@@ -7,6 +7,10 @@ vi.mock("@/features/listings/queries", () => ({
   getListingById: vi.fn(),
 }));
 
+vi.mock("@/server/auth/current-user", () => ({
+  requireCurrentUser: vi.fn(),
+}));
+
 const listing = {
   id: "507f1f77bcf86cd799439011",
   title: "Sunny room near SCSU",

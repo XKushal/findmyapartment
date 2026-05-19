@@ -6,6 +6,10 @@ import {
 import { z } from "zod";
 
 import {
+  registerBodySchema,
+  registerResponseSchema,
+} from "@/features/auth/schemas";
+import {
   listingCreateBodySchema,
   listingDetailResponseSchema,
   listingParamsSchema,
@@ -51,10 +55,29 @@ export function createOpenApiDocument() {
   const registry = new OpenAPIRegistry();
 
   registry.register("ApiErrorResponse", apiErrorResponseSchema);
+  registry.register("RegisterBody", registerBodySchema);
+  registry.register("RegisterResponse", registerResponseSchema);
   registry.register("ListingCreateBody", listingCreateBodySchema);
   registry.register("ListingUpdateBody", listingUpdateBodySchema);
   registry.register("ListingsResponse", listingsResponseSchema);
   registry.register("ListingDetailResponse", listingDetailResponseSchema);
+
+  registry.registerPath({
+    method: "post",
+    path: "/api/auth/register",
+    summary: "Register with email and password",
+    description:
+      "Creates a local credentials account. Use the Auth.js credentials sign-in flow after registration to create a session.",
+    request: {
+      body: jsonRequestBody(registerBodySchema, "Registration payload."),
+    },
+    responses: {
+      201: jsonContent(registerResponseSchema, "Registered user response."),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      409: jsonContent(apiErrorResponseSchema, "Duplicate email response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
 
   registry.registerPath({
     method: "get",
@@ -76,14 +99,14 @@ export function createOpenApiDocument() {
     path: "/api/listings",
     summary: "Create listing",
     description:
-      "Local/dev-only endpoint for creating listings before authentication is added.",
+      "Creates a listing for the signed-in user.",
     request: {
       body: jsonRequestBody(listingCreateBodySchema, "Listing create payload."),
     },
     responses: {
       201: jsonContent(listingDetailResponseSchema, "Created listing response."),
       400: jsonContent(apiErrorResponseSchema, "Validation error response."),
-      403: jsonContent(apiErrorResponseSchema, "Local-only endpoint response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
       500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
     },
   });
@@ -109,7 +132,7 @@ export function createOpenApiDocument() {
     path: "/api/listings/{id}",
     summary: "Update listing",
     description:
-      "Local/dev-only endpoint for updating listings before authentication is added.",
+      "Updates a listing owned by the signed-in user.",
     request: {
       params: listingParamsSchema,
       body: jsonRequestBody(listingUpdateBodySchema, "Listing update payload."),
@@ -117,7 +140,8 @@ export function createOpenApiDocument() {
     responses: {
       200: jsonContent(listingDetailResponseSchema, "Updated listing response."),
       400: jsonContent(apiErrorResponseSchema, "Validation error response."),
-      403: jsonContent(apiErrorResponseSchema, "Local-only endpoint response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
+      403: jsonContent(apiErrorResponseSchema, "Forbidden owner-check response."),
       404: jsonContent(apiErrorResponseSchema, "Listing not found response."),
       500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
     },
@@ -128,14 +152,15 @@ export function createOpenApiDocument() {
     path: "/api/listings/{id}",
     summary: "Archive listing",
     description:
-      "Local/dev-only endpoint that soft-archives a listing before authentication is added.",
+      "Soft-archives a listing owned by the signed-in user.",
     request: {
       params: listingParamsSchema,
     },
     responses: {
       200: jsonContent(listingDetailResponseSchema, "Archived listing response."),
       400: jsonContent(apiErrorResponseSchema, "Validation error response."),
-      403: jsonContent(apiErrorResponseSchema, "Local-only endpoint response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
+      403: jsonContent(apiErrorResponseSchema, "Forbidden owner-check response."),
       404: jsonContent(apiErrorResponseSchema, "Listing not found response."),
       500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
     },

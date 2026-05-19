@@ -5,23 +5,35 @@ import {
   type ListingUpdateInput,
   toListingWriteData,
 } from "@/features/listings/schemas";
+import { forbidden } from "@/server/api/errors";
 import { prisma } from "@/server/db/prisma";
 
 function hasDatabaseUrl() {
   return Boolean(process.env.DATABASE_URL);
 }
 
-export async function createListing(input: ListingCreateInput) {
+export async function createListing(input: ListingCreateInput, ownerId: string) {
   if (!hasDatabaseUrl()) {
     return null;
   }
 
   return prisma.listing.create({
-    data: toListingWriteData(input) as Prisma.ListingCreateInput,
+    data: {
+      ...(toListingWriteData(input) as Prisma.ListingCreateInput),
+      owner: {
+        connect: {
+          id: ownerId,
+        },
+      },
+    },
   });
 }
 
-export async function updateListing(id: string, input: ListingUpdateInput) {
+export async function updateListing(
+  id: string,
+  input: ListingUpdateInput,
+  ownerId: string,
+) {
   if (!hasDatabaseUrl()) {
     return null;
   }
@@ -35,11 +47,16 @@ export async function updateListing(id: string, input: ListingUpdateInput) {
     },
     select: {
       id: true,
+      ownerId: true,
     },
   });
 
   if (!existing) {
     return null;
+  }
+
+  if (existing.ownerId !== ownerId) {
+    throw forbidden("Only the listing owner can update this listing.");
   }
 
   return prisma.listing.update({
@@ -48,8 +65,12 @@ export async function updateListing(id: string, input: ListingUpdateInput) {
   });
 }
 
-export async function archiveListing(id: string) {
-  return updateListing(id, {
-    status: ListingStatus.ARCHIVED,
-  });
+export async function archiveListing(id: string, ownerId: string) {
+  return updateListing(
+    id,
+    {
+      status: ListingStatus.ARCHIVED,
+    },
+    ownerId,
+  );
 }

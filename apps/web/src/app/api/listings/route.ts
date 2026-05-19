@@ -7,9 +7,9 @@ import {
 } from "@/features/listings/schemas";
 import { getActiveListings } from "@/features/listings/queries";
 import { createListing } from "@/features/listings/mutations";
-import { assertLocalWriteApiAllowed } from "@/server/api/local-only";
 import { readJsonBody } from "@/server/api/request";
 import { apiData, throwIfInvalid, withApiErrorHandling } from "@/server/api/responses";
+import { requireCurrentUser } from "@/server/auth/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -32,12 +32,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   return withApiErrorHandling(async () => {
-    assertLocalWriteApiAllowed();
+    const currentUser = await requireCurrentUser();
 
     const body = throwIfInvalid(
       listingCreateBodySchema.safeParse(await readJsonBody(request)),
     );
-    const listing = await createListing(body);
+    const listing = await createListing(body, currentUser.id);
 
     return apiData(
       {
