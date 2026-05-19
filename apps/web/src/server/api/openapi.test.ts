@@ -7,11 +7,15 @@ describe("OpenAPI document", () => {
     const document = createOpenApiDocument();
 
     expect(document.openapi).toBe("3.0.0");
+    expect(document.paths["/api/auth/register"]?.post).toBeDefined();
     expect(document.paths["/api/listings"]?.get).toBeDefined();
     expect(document.paths["/api/listings"]?.post).toBeDefined();
     expect(document.paths["/api/listings/{id}"]?.get).toBeDefined();
     expect(document.paths["/api/listings/{id}"]?.patch).toBeDefined();
     expect(document.paths["/api/listings/{id}"]?.delete).toBeDefined();
     expect(document.components?.schemas?.ApiErrorResponse).toBeDefined();
+    expect(document.components?.schemas?.RegisterResponse).toBeDefined();
+    expect(document.paths["/api/listings"]?.post?.responses?.[401]).toBeDefined();
+    expect(document.paths["/api/listings/{id}"]?.patch?.responses?.[403]).toBeDefined();
   });
 });

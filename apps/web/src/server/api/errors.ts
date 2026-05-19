@@ -1,8 +1,10 @@
 export type ApiErrorCode =
   | "BAD_REQUEST"
   | "VALIDATION_ERROR"
+  | "AUTH_REQUIRED"
+  | "FORBIDDEN"
+  | "EMAIL_ALREADY_EXISTS"
   | "LISTING_NOT_FOUND"
-  | "LOCAL_ONLY_ENDPOINT"
   | "INTERNAL_SERVER_ERROR";
 
 export type ApiErrorInit = {
@@ -76,19 +78,36 @@ export function badRequest(message: string, details: Record<string, unknown> = {
   });
 }
 
+export function authRequired() {
+  return new ApiError({
+    code: "AUTH_REQUIRED",
+    message: "You must be signed in to perform this action.",
+    status: 401,
+  });
+}
+
+export function forbidden(message = "You do not have permission to perform this action.") {
+  return new ApiError({
+    code: "FORBIDDEN",
+    message,
+    status: 403,
+  });
+}
+
+export function emailAlreadyExists(email: string) {
+  return new ApiError({
+    code: "EMAIL_ALREADY_EXISTS",
+    message: "An account already exists for this email address.",
+    status: 409,
+    details: { email },
+  });
+}
+
 export function listingNotFound(id: string) {
   return new ApiError({
     code: "LISTING_NOT_FOUND",
     message: "Listing was not found.",
     status: 404,
     details: { id },
-  });
-}
-
-export function localOnlyEndpoint() {
-  return new ApiError({
-    code: "LOCAL_ONLY_ENDPOINT",
-    message: "This endpoint is enabled only for local development.",
-    status: 403,
   });
 }
