@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { ListingCreateForm } from "@/features/listings/components/listing-create-form";
+import { getProfileUser } from "@/features/profile/queries";
 import { auth } from "@/server/auth/auth";
 
 export default async function NewListingPage() {
@@ -9,6 +10,8 @@ export default async function NewListingPage() {
   if (!session?.user?.id) {
     redirect("/login?callbackUrl=%2Flistings%2Fnew");
   }
+
+  const profileUser = await getProfileUser(session.user.id);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -21,7 +24,10 @@ export default async function NewListingPage() {
       <p className="mt-4 leading-8 text-zinc-700">
         Add the essentials first. You can edit details after the post is live.
       </p>
-      <ListingCreateForm defaultContactEmail={session.user.email} />
+      <ListingCreateForm
+        defaultContactEmail={profileUser?.contactEmail ?? session.user.email}
+        defaultContactPhone={profileUser?.contactPhone}
+      />
     </main>
   );
 }

@@ -1,5 +1,3 @@
-import { ListingType } from "@prisma/client";
-
 import {
   listingCreateBodySchema,
   listingQuerySchema,
@@ -19,10 +17,16 @@ export async function GET(request: Request) {
     const query = throwIfInvalid(
       listingQuerySchema.safeParse({
         type: url.searchParams.get("type") ?? undefined,
+        rentMin: url.searchParams.get("rentMin") ?? undefined,
+        rentMax: url.searchParams.get("rentMax") ?? undefined,
+        bedroomsMin: url.searchParams.get("bedroomsMin") ?? undefined,
+        bathroomsMin: url.searchParams.get("bathroomsMin") ?? undefined,
+        availableBy: url.searchParams.get("availableBy") ?? undefined,
+        petPolicy: url.searchParams.get("petPolicy") ?? undefined,
       }),
     );
 
-    const listings = await getActiveListings(query.type as ListingType | undefined);
+    const listings = await getActiveListings(query);
 
     return apiData({
       listings: listings.map(serializeListing),

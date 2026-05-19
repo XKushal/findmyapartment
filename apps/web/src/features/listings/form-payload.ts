@@ -58,6 +58,7 @@ export function createListingPayloadFromFormData(
     contactPhone: nullableStringValue(formData, "contactPhone"),
     bedrooms: nullableNumberValue(formData, "bedrooms"),
     bathrooms: nullableNumberValue(formData, "bathrooms"),
+    petPolicy: stringValue(formData, "petPolicy") as ListingCreateInput["petPolicy"],
     amenities: textareaListValue(formData, "amenities"),
     imageUrls: repeatedStringValue(formData, "imageUrls"),
   };

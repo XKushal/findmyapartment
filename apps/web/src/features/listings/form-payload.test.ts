@@ -19,6 +19,7 @@ describe("createListingPayloadFromFormData", () => {
     formData.set("contactPhone", " 320-555-1212 ");
     formData.set("bedrooms", "2");
     formData.set("bathrooms", "1.5");
+    formData.set("petPolicy", "PETS_ALLOWED");
     formData.set("amenities", "Laundry, Parking");
     formData.append("imageUrls", "data:image/png;base64,abc123");
     formData.append("imageUrls", "data:image/jpeg;base64,def456");
@@ -39,6 +40,7 @@ describe("createListingPayloadFromFormData", () => {
       contactPhone: "320-555-1212",
       bedrooms: 2,
       bathrooms: 1.5,
+      petPolicy: "PETS_ALLOWED",
       amenities: ["Laundry", "Parking"],
       imageUrls: ["data:image/png;base64,abc123", "data:image/jpeg;base64,def456"],
     });

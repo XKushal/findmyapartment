@@ -5,6 +5,13 @@ extendZodWithOpenApi(z);
 
 export const listingTypeSchema = z.enum(["APARTMENT", "ROOM", "ROOMMATE"]);
 export const listingStatusSchema = z.enum(["DRAFT", "ACTIVE", "RENTED", "ARCHIVED"]);
+export const petPolicySchema = z.enum([
+  "UNKNOWN",
+  "NO_PETS",
+  "CATS_ONLY",
+  "DOGS_ONLY",
+  "PETS_ALLOWED",
+]);
 const imageUrlSchema = z
   .string()
   .url()
@@ -23,9 +30,35 @@ const nullablePhoneSchema = z
   .max(30)
   .nullable();
 
-export const listingQuerySchema = z.object({
-  type: listingTypeSchema.optional(),
-});
+const optionalQueryNumberSchema = z.preprocess(
+  (value) => (value === "" || value === null ? undefined : value),
+  z.coerce.number().nonnegative().optional(),
+);
+
+export const listingQuerySchema = z
+  .object({
+    type: listingTypeSchema.optional(),
+    rentMin: optionalQueryNumberSchema,
+    rentMax: optionalQueryNumberSchema,
+    bedroomsMin: optionalQueryNumberSchema.pipe(z.number().int().optional()),
+    bathroomsMin: optionalQueryNumberSchema,
+    availableBy: z
+      .preprocess(
+        (value) => (value === "" || value === null ? undefined : value),
+        z.string().date().optional(),
+      ),
+    petPolicy: petPolicySchema.optional(),
+  })
+  .refine(
+    (value) =>
+      value.rentMin === undefined ||
+      value.rentMax === undefined ||
+      value.rentMin <= value.rentMax,
+    {
+      message: "Minimum rent must be less than or equal to maximum rent.",
+      path: ["rentMax"],
+    },
+  );
 
 export const listingParamsSchema = z.object({
   id: z.string().trim().min(1, "Listing id is required."),
@@ -48,6 +81,7 @@ export const listingResponseSchema = z.object({
   contactPhone: z.string().nullable(),
   bedrooms: z.number().int().nonnegative().nullable(),
   bathrooms: z.number().nonnegative().nullable(),
+  petPolicy: petPolicySchema,
   amenities: z.array(z.string()),
   imageUrls: z.array(imageUrlSchema),
   ownerId: z.string().nullable(),
@@ -79,6 +113,7 @@ export const listingCreateBodySchema = z.object({
   contactPhone: nullablePhoneSchema.default(null),
   bedrooms: z.number().int().nonnegative().nullable().default(null),
   bathrooms: z.number().nonnegative().nullable().default(null),
+  petPolicy: petPolicySchema.default("UNKNOWN"),
   amenities: z.array(z.string().trim().min(1)).default([]),
   imageUrls: z
     .array(imageUrlSchema)
@@ -103,6 +138,7 @@ export const listingUpdateBodySchema = z
     contactPhone: z.string().trim().min(7).max(30).nullable().optional(),
     bedrooms: z.number().int().nonnegative().nullable().optional(),
     bathrooms: z.number().nonnegative().nullable().optional(),
+    petPolicy: petPolicySchema.optional(),
     amenities: z.array(z.string().trim().min(1)).optional(),
     imageUrls: z
       .array(imageUrlSchema)
@@ -114,6 +150,7 @@ export const listingUpdateBodySchema = z
   });
 
 export type ListingApiResponse = z.infer<typeof listingResponseSchema>;
+export type ListingQueryInput = z.infer<typeof listingQuerySchema>;
 export type ListingCreateInput = z.infer<typeof listingCreateBodySchema>;
 export type ListingUpdateInput = z.infer<typeof listingUpdateBodySchema>;
 
@@ -134,6 +171,7 @@ type ListingForApi = {
   contactPhone?: string | null;
   bedrooms: number | null;
   bathrooms: number | null;
+  petPolicy: "UNKNOWN" | "NO_PETS" | "CATS_ONLY" | "DOGS_ONLY" | "PETS_ALLOWED";
   amenities: string[];
   imageUrls: string[];
   ownerId: string | null;

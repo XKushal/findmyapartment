@@ -28,6 +28,7 @@ const listing = {
   contactPhone: null,
   bedrooms: 1,
   bathrooms: 1,
+  petPolicy: "UNKNOWN" as const,
   amenities: ["Laundry"],
   imageUrls: [],
   ownerId: null,
