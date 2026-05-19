@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppNav } from "@/app/app-nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +14,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <AppNav />
+        {children}
+      </body>
     </html>
   );
 }
