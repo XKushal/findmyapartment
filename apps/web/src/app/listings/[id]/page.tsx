@@ -1,6 +1,9 @@
 import { getListingById } from "@/features/listings/queries";
 import { ListingArchiveButton } from "@/features/listings/components/listing-archive-button";
 import { ListingImageGallery } from "@/features/listings/components/listing-image-gallery";
+import { ReviewSection } from "@/features/reviews/components/review-section";
+import { getReviewsForListing } from "@/features/reviews/mutations";
+import { serializeReview } from "@/features/reviews/schemas";
 import { auth } from "@/server/auth/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -15,7 +18,11 @@ export default async function ListingDetailPage({
   params,
 }: ListingDetailPageProps) {
   const { id } = await params;
-  const [listing, session] = await Promise.all([getListingById(id), auth()]);
+  const [listing, reviews, session] = await Promise.all([
+    getListingById(id),
+    getReviewsForListing(id),
+    auth(),
+  ]);
 
   if (!listing) {
     notFound();
@@ -129,6 +136,12 @@ export default async function ListingDetailPage({
           </div>
         </div>
       ) : null}
+
+      <ReviewSection
+        listingId={listing.id}
+        initialReviews={reviews.map(serializeReview)}
+        currentUserId={session?.user?.id ?? null}
+      />
     </main>
   );
 }

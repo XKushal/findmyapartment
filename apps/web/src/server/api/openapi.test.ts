@@ -13,9 +13,15 @@ describe("OpenAPI document", () => {
     expect(document.paths["/api/listings/{id}"]?.get).toBeDefined();
     expect(document.paths["/api/listings/{id}"]?.patch).toBeDefined();
     expect(document.paths["/api/listings/{id}"]?.delete).toBeDefined();
+    expect(document.paths["/api/listings/{id}/reviews"]?.get).toBeDefined();
+    expect(document.paths["/api/listings/{id}/reviews"]?.post).toBeDefined();
+    expect(document.paths["/api/reviews/{reviewId}"]?.patch).toBeDefined();
+    expect(document.paths["/api/reviews/{reviewId}"]?.delete).toBeDefined();
     expect(document.components?.schemas?.ApiErrorResponse).toBeDefined();
     expect(document.components?.schemas?.RegisterResponse).toBeDefined();
+    expect(document.components?.schemas?.ReviewDetailResponse).toBeDefined();
     expect(document.paths["/api/listings"]?.post?.responses?.[401]).toBeDefined();
     expect(document.paths["/api/listings/{id}"]?.patch?.responses?.[403]).toBeDefined();
+    expect(document.paths["/api/reviews/{reviewId}"]?.patch?.responses?.[403]).toBeDefined();
   });
 });

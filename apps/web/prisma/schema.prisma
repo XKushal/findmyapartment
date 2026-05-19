@@ -37,6 +37,7 @@ model User {
   contactPhone String?
   passwordHash String?
   listings     Listing[]
+  reviews      Review[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -63,6 +64,7 @@ model Listing {
   imageUrls         String[]
   ownerId           String?       @db.ObjectId
   owner             User?         @relation(fields: [ownerId], references: [id])
+  reviews           Review[]
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
@@ -77,4 +79,19 @@ model Listing {
   @@index([status, bathrooms])
   @@index([status, availableFrom])
   @@index([status, petPolicy])
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  listingId String   @db.ObjectId
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  authorId  String   @db.ObjectId
+  author    User     @relation(fields: [authorId], references: [id])
+  body      String
+  rating    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([listingId, createdAt])
+  @@index([authorId])
 }
