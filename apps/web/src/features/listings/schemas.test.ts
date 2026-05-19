@@ -26,6 +26,7 @@ describe("listing API schemas", () => {
       contactPhone: null,
       bedrooms: 1,
       bathrooms: 1,
+      petPolicy: "PETS_ALLOWED",
       amenities: ["Laundry"],
       imageUrls: [],
       ownerId: null,
@@ -42,6 +43,38 @@ describe("listing API schemas", () => {
     expect(parsed.success).toBe(false);
   });
 
+  it("accepts structured discovery filters", () => {
+    const parsed = listingQuerySchema.safeParse({
+      type: "ROOM",
+      rentMin: "700",
+      rentMax: "1200",
+      bedroomsMin: "1",
+      bathroomsMin: "1.5",
+      availableBy: "2026-08-01",
+      petPolicy: "PETS_ALLOWED",
+    });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success ? parsed.data : null).toEqual({
+      type: "ROOM",
+      rentMin: 700,
+      rentMax: 1200,
+      bedroomsMin: 1,
+      bathroomsMin: 1.5,
+      availableBy: "2026-08-01",
+      petPolicy: "PETS_ALLOWED",
+    });
+  });
+
+  it("rejects inverted rent filters", () => {
+    const parsed = listingQuerySchema.safeParse({
+      rentMin: "1400",
+      rentMax: "900",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
   it("requires a non-empty listing id path parameter", () => {
     const parsed = listingParamsSchema.safeParse({ id: "" });
 
@@ -54,6 +87,7 @@ describe("listing API schemas", () => {
       type: "ROOM",
       description: "Private room near campus.",
       rent: 850,
+      petPolicy: "PETS_ALLOWED",
       imageUrls: ["data:image/png;base64,abc123"],
     });
 

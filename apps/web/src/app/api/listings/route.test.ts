@@ -28,6 +28,7 @@ const listing = {
   contactPhone: null,
   bedrooms: 1,
   bathrooms: 1,
+  petPolicy: "PETS_ALLOWED" as const,
   amenities: ["Laundry"],
   imageUrls: [],
   ownerId: null,
@@ -60,7 +61,36 @@ describe("GET /api/listings", () => {
       },
     });
     expect(response.status).toBe(200);
-    expect(getActiveListings).toHaveBeenCalledWith("ROOM");
+    expect(getActiveListings).toHaveBeenCalledWith({
+      type: "ROOM",
+      rentMin: undefined,
+      rentMax: undefined,
+      bedroomsMin: undefined,
+      bathroomsMin: undefined,
+      availableBy: undefined,
+      petPolicy: undefined,
+    });
+  });
+
+  it("passes structured discovery filters to listing reads", async () => {
+    vi.mocked(getActiveListings).mockResolvedValue([listing]);
+
+    const response = await GET(
+      new Request(
+        "http://localhost:3000/api/listings?type=ROOM&rentMin=700&rentMax=1200&bedroomsMin=1&bathroomsMin=1.5&availableBy=2026-08-01&petPolicy=PETS_ALLOWED",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect(getActiveListings).toHaveBeenCalledWith({
+      type: "ROOM",
+      rentMin: 700,
+      rentMax: 1200,
+      bedroomsMin: 1,
+      bathroomsMin: 1.5,
+      availableBy: "2026-08-01",
+      petPolicy: "PETS_ALLOWED",
+    });
   });
 
   it("returns a validation error for unsupported filters", async () => {

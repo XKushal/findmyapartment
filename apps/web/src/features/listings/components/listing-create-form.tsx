@@ -33,6 +33,7 @@ type ListingFormValue = {
   contactPhone?: string | null;
   bedrooms: number | null;
   bathrooms: number | null;
+  petPolicy: ListingCreateInput["petPolicy"];
   amenities: string[];
   imageUrls: string[];
 };
@@ -41,6 +42,7 @@ type ListingCreateFormProps = {
   listing?: ListingFormValue;
   mode?: "create" | "edit";
   defaultContactEmail?: string | null;
+  defaultContactPhone?: string | null;
 };
 
 const MAX_IMAGES = 5;
@@ -66,6 +68,7 @@ export function ListingCreateForm({
   listing,
   mode = "create",
   defaultContactEmail,
+  defaultContactPhone,
 }: ListingCreateFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -328,7 +331,7 @@ export function ListingCreateForm({
             id="contactPhone"
             name="contactPhone"
             type="tel"
-            defaultValue={listing?.contactPhone ?? ""}
+            defaultValue={listing?.contactPhone ?? defaultContactPhone ?? ""}
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
             placeholder="320-555-1212"
           />
@@ -365,6 +368,24 @@ export function ListingCreateForm({
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
           />
         </div>
+      </div>
+
+      <div className="grid gap-2">
+        <label htmlFor="petPolicy" className="text-sm font-medium text-zinc-800">
+          Pet policy
+        </label>
+        <select
+          id="petPolicy"
+          name="petPolicy"
+          defaultValue={listing?.petPolicy ?? "UNKNOWN"}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+        >
+          <option value="UNKNOWN">Not specified</option>
+          <option value="PETS_ALLOWED">Pets allowed</option>
+          <option value="CATS_ONLY">Cats only</option>
+          <option value="DOGS_ONLY">Dogs only</option>
+          <option value="NO_PETS">No pets</option>
+        </select>
       </div>
 
       <label className="flex items-center gap-3 text-sm font-medium text-zinc-800">

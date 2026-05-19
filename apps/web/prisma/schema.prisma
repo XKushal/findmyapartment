@@ -20,11 +20,21 @@ enum ListingStatus {
   ARCHIVED
 }
 
+enum PetPolicy {
+  UNKNOWN
+  NO_PETS
+  CATS_ONLY
+  DOGS_ONLY
+  PETS_ALLOWED
+}
+
 model User {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   email        String    @unique
   name         String?
   image        String?
+  contactEmail String?
+  contactPhone String?
   passwordHash String?
   listings     Listing[]
   createdAt    DateTime  @default(now())
@@ -48,6 +58,7 @@ model Listing {
   contactPhone      String?
   bedrooms          Int?
   bathrooms         Float?
+  petPolicy         PetPolicy     @default(UNKNOWN)
   amenities         String[]
   imageUrls         String[]
   ownerId           String?       @db.ObjectId
@@ -60,4 +71,10 @@ model Listing {
   @@index([rent])
   @@index([availableFrom])
   @@index([ownerId])
+  @@index([status, type])
+  @@index([status, rent])
+  @@index([status, bedrooms])
+  @@index([status, bathrooms])
+  @@index([status, availableFrom])
+  @@index([status, petPolicy])
 }

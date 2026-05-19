@@ -19,19 +19,24 @@ export async function AppNav() {
             Post
           </Link>
           {session?.user ? (
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
-            >
-              <button
-                type="submit"
-                className="rounded-md border border-zinc-300 px-3 py-1.5 text-zinc-950 hover:bg-zinc-100"
+            <>
+              <Link href="/profile" className="text-zinc-700 hover:text-zinc-950">
+                Profile
+              </Link>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: "/" });
+                }}
               >
-                Sign out
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className="rounded-md border border-zinc-300 px-3 py-1.5 text-zinc-950 hover:bg-zinc-100"
+                >
+                  Sign out
+                </button>
+              </form>
+            </>
           ) : (
             <Link
               href="/login"
