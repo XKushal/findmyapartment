@@ -17,6 +17,14 @@ import {
   listingUpdateBodySchema,
   listingsResponseSchema,
 } from "@/features/listings/schemas";
+import {
+  listingReviewsParamsSchema,
+  reviewCreateBodySchema,
+  reviewDetailResponseSchema,
+  reviewParamsSchema,
+  reviewUpdateBodySchema,
+  reviewsResponseSchema,
+} from "@/features/reviews/schemas";
 
 extendZodWithOpenApi(z);
 
@@ -61,6 +69,10 @@ export function createOpenApiDocument() {
   registry.register("ListingUpdateBody", listingUpdateBodySchema);
   registry.register("ListingsResponse", listingsResponseSchema);
   registry.register("ListingDetailResponse", listingDetailResponseSchema);
+  registry.register("ReviewCreateBody", reviewCreateBodySchema);
+  registry.register("ReviewUpdateBody", reviewUpdateBodySchema);
+  registry.register("ReviewsResponse", reviewsResponseSchema);
+  registry.register("ReviewDetailResponse", reviewDetailResponseSchema);
 
   registry.registerPath({
     method: "post",
@@ -162,6 +174,78 @@ export function createOpenApiDocument() {
       401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
       403: jsonContent(apiErrorResponseSchema, "Forbidden owner-check response."),
       404: jsonContent(apiErrorResponseSchema, "Listing not found response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
+
+  registry.registerPath({
+    method: "get",
+    path: "/api/listings/{id}/reviews",
+    summary: "List listing reviews",
+    description: "Returns comments and optional ratings for a listing.",
+    request: {
+      params: listingReviewsParamsSchema,
+    },
+    responses: {
+      200: jsonContent(reviewsResponseSchema, "Listing reviews response."),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
+
+  registry.registerPath({
+    method: "post",
+    path: "/api/listings/{id}/reviews",
+    summary: "Create listing review",
+    description:
+      "Creates a comment and optional 1-5 rating for the signed-in user.",
+    request: {
+      params: listingReviewsParamsSchema,
+      body: jsonRequestBody(reviewCreateBodySchema, "Review create payload."),
+    },
+    responses: {
+      201: jsonContent(reviewDetailResponseSchema, "Created review response."),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
+
+  registry.registerPath({
+    method: "patch",
+    path: "/api/reviews/{reviewId}",
+    summary: "Update review",
+    description:
+      "Updates a review owned by the signed-in user.",
+    request: {
+      params: reviewParamsSchema,
+      body: jsonRequestBody(reviewUpdateBodySchema, "Review update payload."),
+    },
+    responses: {
+      200: jsonContent(reviewDetailResponseSchema, "Updated review response."),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
+      403: jsonContent(apiErrorResponseSchema, "Forbidden author-check response."),
+      404: jsonContent(apiErrorResponseSchema, "Review not found response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
+
+  registry.registerPath({
+    method: "delete",
+    path: "/api/reviews/{reviewId}",
+    summary: "Delete review",
+    description:
+      "Deletes a review owned by the signed-in user.",
+    request: {
+      params: reviewParamsSchema,
+    },
+    responses: {
+      200: jsonContent(reviewDetailResponseSchema, "Deleted review response."),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
+      403: jsonContent(apiErrorResponseSchema, "Forbidden author-check response."),
+      404: jsonContent(apiErrorResponseSchema, "Review not found response."),
       500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
     },
   });

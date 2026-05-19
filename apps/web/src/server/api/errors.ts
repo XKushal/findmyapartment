@@ -5,6 +5,7 @@ export type ApiErrorCode =
   | "FORBIDDEN"
   | "EMAIL_ALREADY_EXISTS"
   | "LISTING_NOT_FOUND"
+  | "REVIEW_NOT_FOUND"
   | "INTERNAL_SERVER_ERROR";
 
 export type ApiErrorInit = {
@@ -107,6 +108,15 @@ export function listingNotFound(id: string) {
   return new ApiError({
     code: "LISTING_NOT_FOUND",
     message: "Listing was not found.",
+    status: 404,
+    details: { id },
+  });
+}
+
+export function reviewNotFound(id: string) {
+  return new ApiError({
+    code: "REVIEW_NOT_FOUND",
+    message: "Review was not found.",
     status: 404,
     details: { id },
   });
