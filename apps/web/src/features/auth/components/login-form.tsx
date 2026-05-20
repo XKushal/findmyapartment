@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { FormFeedback } from "@/features/ui/form-feedback";
+
 type LoginFormProps = {
   callbackUrl: string;
 };
@@ -12,11 +14,13 @@ type LoginFormProps = {
 export function LoginForm({ callbackUrl }: LoginFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setNotice("Signing in...");
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
@@ -30,10 +34,12 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
     setIsSubmitting(false);
 
     if (result?.error) {
+      setNotice(null);
       setError("Email or password is incorrect.");
       return;
     }
 
+    setNotice("Signed in. Opening your page...");
     router.push(callbackUrl);
     router.refresh();
   }
@@ -41,9 +47,12 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
       {error ? (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
+        <FormFeedback tone="error">{error}</FormFeedback>
+      ) : null}
+      {notice ? (
+        <FormFeedback tone={isSubmitting ? "info" : "success"}>
+          {notice}
+        </FormFeedback>
       ) : null}
 
       <div className="grid gap-2">
