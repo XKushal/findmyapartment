@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import type { ProfileUser } from "@/features/profile/queries";
+import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ApiErrorBody = {
   error?: {
@@ -30,7 +31,7 @@ export function ProfileAccountForm({ user }: { user: ProfileUser }) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    setNotice(null);
+    setNotice("Saving profile...");
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
@@ -49,6 +50,7 @@ export function ProfileAccountForm({ user }: { user: ProfileUser }) {
       });
 
       if (!response.ok) {
+        setNotice(null);
         setError(await readErrorMessage(response));
         return;
       }
@@ -56,6 +58,7 @@ export function ProfileAccountForm({ user }: { user: ProfileUser }) {
       setNotice("Profile updated.");
       router.refresh();
     } catch {
+      setNotice(null);
       setError("Could not update your profile. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -68,14 +71,12 @@ export function ProfileAccountForm({ user }: { user: ProfileUser }) {
       className="mt-4 grid gap-4 rounded-md border border-zinc-200 p-4"
     >
       {error ? (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
+        <FormFeedback tone="error">{error}</FormFeedback>
       ) : null}
       {notice ? (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <FormFeedback tone={isSubmitting ? "info" : "success"}>
           {notice}
-        </div>
+        </FormFeedback>
       ) : null}
 
       <ProfileAccountFields user={user} />

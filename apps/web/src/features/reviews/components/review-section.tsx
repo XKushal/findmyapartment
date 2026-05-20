@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import type { ReviewApiResponse } from "@/features/reviews/schemas";
+import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ReviewSectionProps = {
   listingId: string;
@@ -35,12 +36,14 @@ export function ReviewSection({
   const [reviews, setReviews] = useState(initialReviews);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSignedIn = Boolean(currentUserId);
 
   async function createReview(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setNotice("Posting review...");
     setIsSubmitting(true);
 
     const form = event.currentTarget;
@@ -60,6 +63,7 @@ export function ReviewSection({
       });
 
       if (!response.ok) {
+        setNotice(null);
         setError(await readErrorMessage(response, "Could not add review."));
         return;
       }
@@ -73,8 +77,10 @@ export function ReviewSection({
       }
 
       form.reset();
+      setNotice("Review posted.");
       router.refresh();
     } catch {
+      setNotice(null);
       setError("Could not add review.");
     } finally {
       setIsSubmitting(false);
@@ -84,6 +90,7 @@ export function ReviewSection({
   async function updateReview(event: FormEvent<HTMLFormElement>, reviewId: string) {
     event.preventDefault();
     setError(null);
+    setNotice("Saving review...");
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
@@ -102,6 +109,7 @@ export function ReviewSection({
       });
 
       if (!response.ok) {
+        setNotice(null);
         setError(await readErrorMessage(response, "Could not update review."));
         return;
       }
@@ -119,8 +127,10 @@ export function ReviewSection({
       }
 
       setEditingReviewId(null);
+      setNotice("Review saved.");
       router.refresh();
     } catch {
+      setNotice(null);
       setError("Could not update review.");
     } finally {
       setIsSubmitting(false);
@@ -133,6 +143,7 @@ export function ReviewSection({
     }
 
     setError(null);
+    setNotice("Deleting review...");
     setIsSubmitting(true);
 
     try {
@@ -141,13 +152,16 @@ export function ReviewSection({
       });
 
       if (!response.ok) {
+        setNotice(null);
         setError(await readErrorMessage(response, "Could not delete review."));
         return;
       }
 
       setReviews((current) => current.filter((review) => review.id !== reviewId));
+      setNotice("Review deleted.");
       router.refresh();
     } catch {
+      setNotice(null);
       setError("Could not delete review.");
     } finally {
       setIsSubmitting(false);
@@ -170,8 +184,15 @@ export function ReviewSection({
       </div>
 
       {error ? (
-        <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
+        <div className="mt-4">
+          <FormFeedback tone="error">{error}</FormFeedback>
+        </div>
+      ) : null}
+      {notice ? (
+        <div className="mt-4">
+          <FormFeedback tone={isSubmitting ? "info" : "success"}>
+            {notice}
+          </FormFeedback>
         </div>
       ) : null}
 

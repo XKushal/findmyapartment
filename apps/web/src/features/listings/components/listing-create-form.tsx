@@ -5,6 +5,7 @@ import { useRef, useState, type DragEvent, type FormEvent } from "react";
 
 import { createListingPayloadFromFormData } from "@/features/listings/form-payload";
 import type { ListingCreateInput } from "@/features/listings/schemas";
+import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ApiErrorBody = {
   error?: {
@@ -12,9 +13,9 @@ type ApiErrorBody = {
   };
 };
 
-async function readErrorMessage(response: Response) {
+async function readErrorMessage(response: Response, fallback: string) {
   const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
-  return body?.error?.message ?? "Could not create listing. Please try again.";
+  return body?.error?.message ?? fallback;
 }
 
 type ListingFormValue = {
@@ -74,11 +75,13 @@ export function ListingCreateForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrls, setImageUrls] = useState(listing?.imageUrls ?? []);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditMode = mode === "edit";
 
   async function addFiles(files: FileList | File[]) {
     setError(null);
+    setNotice(null);
 
     const imageFiles = Array.from(files).filter((file) =>
       file.type.startsWith("image/"),
@@ -109,6 +112,7 @@ export function ListingCreateForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setNotice(isEditMode ? "Saving listing..." : "Posting listing...");
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
@@ -126,7 +130,15 @@ export function ListingCreateForm({
       );
 
       if (!response.ok) {
-        setError(await readErrorMessage(response));
+        setNotice(null);
+        setError(
+          await readErrorMessage(
+            response,
+            isEditMode
+              ? "Could not save listing. Please try again."
+              : "Could not create listing. Please try again.",
+          ),
+        );
         return;
       }
 
@@ -135,10 +147,16 @@ export function ListingCreateForm({
       };
       const listingId = body.data?.listing?.id;
 
+      setNotice(isEditMode ? "Listing saved." : "Listing posted.");
       router.push(listingId ? `/listings/${listingId}` : "/listings");
       router.refresh();
     } catch {
-      setError("Could not create listing. Please try again.");
+      setNotice(null);
+      setError(
+        isEditMode
+          ? "Could not save listing. Please try again."
+          : "Could not create listing. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -151,9 +169,12 @@ export function ListingCreateForm({
       ))}
 
       {error ? (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
+        <FormFeedback tone="error">{error}</FormFeedback>
+      ) : null}
+      {notice ? (
+        <FormFeedback tone={isSubmitting ? "info" : "success"}>
+          {notice}
+        </FormFeedback>
       ) : null}
 
       <div className="grid gap-2">
