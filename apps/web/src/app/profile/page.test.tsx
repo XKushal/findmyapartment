@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import ProfilePage from "@/app/profile/page";
 import { getListingsByOwner } from "@/features/listings/queries";
 import { getProfileUser } from "@/features/profile/queries";
+import { getSavedListingsByUser } from "@/features/saved-listings/queries";
 import { auth } from "@/server/auth/auth";
 
 vi.mock("@/features/listings/queries", () => ({
@@ -11,6 +12,10 @@ vi.mock("@/features/listings/queries", () => ({
 
 vi.mock("@/features/profile/queries", () => ({
   getProfileUser: vi.fn(),
+}));
+
+vi.mock("@/features/saved-listings/queries", () => ({
+  getSavedListingsByUser: vi.fn(),
 }));
 
 vi.mock("@/server/auth/auth", () => ({
@@ -43,6 +48,7 @@ const ownedListings = [
     contactPhone: null,
     bedrooms: 1,
     bathrooms: 1,
+    petPolicy: "UNKNOWN" as const,
     amenities: ["Laundry"],
     imageUrls: [],
     ownerId,
@@ -66,6 +72,7 @@ const ownedListings = [
     contactPhone: null,
     bedrooms: 0,
     bathrooms: 1,
+    petPolicy: "UNKNOWN" as const,
     amenities: [],
     imageUrls: [],
     ownerId,
@@ -74,7 +81,38 @@ const ownedListings = [
   },
 ];
 
-function includesText(node: unknown, text: string): boolean {
+const savedListings = [
+  {
+    id: "507f1f77bcf86cd799439013",
+    title: "Saved studio near campus",
+    type: "APARTMENT" as const,
+    status: "ACTIVE" as const,
+    description: "Bright studio close to bus lines.",
+    rent: 850,
+    deposit: 850,
+    utilitiesIncluded: false,
+    availableFrom: null,
+    leaseDuration: null,
+    address: null,
+    distanceToCampus: null,
+    contactEmail: null,
+    contactPhone: null,
+    bedrooms: 0,
+    bathrooms: 1,
+    petPolicy: "UNKNOWN" as const,
+    amenities: [],
+    imageUrls: [],
+    ownerId: "507f1f77bcf86cd799439088",
+    createdAt: new Date("2026-05-18T12:00:00.000Z"),
+    updatedAt: new Date("2026-05-20T12:00:00.000Z"),
+  },
+];
+
+function includesText(
+  node: unknown,
+  text: string,
+  seen = new WeakSet<object>(),
+): boolean {
   if (typeof node === "string" || typeof node === "number") {
     return String(node).includes(text);
   }
@@ -83,14 +121,24 @@ function includesText(node: unknown, text: string): boolean {
     return false;
   }
 
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+
   const element = node as { props?: { children?: unknown } };
-  const children = element.props?.children;
+  const props = element.props;
+  const children = props?.children;
 
   if (Array.isArray(children)) {
-    return children.some((child) => includesText(child, text));
+    return children.some((child) => includesText(child, text, seen));
   }
 
-  return includesText(children, text);
+  if (includesText(children, text, seen)) {
+    return true;
+  }
+
+  return Object.values(props ?? {}).some((value) => includesText(value, text, seen));
 }
 
 function hasHref(node: unknown, href: string): boolean {
@@ -115,6 +163,37 @@ function hasHref(node: unknown, href: string): boolean {
   return hasHref(children, href);
 }
 
+function hasListingPropTitle(
+  node: unknown,
+  title: string,
+  seen = new WeakSet<object>(),
+): boolean {
+  if (Array.isArray(node)) {
+    return node.some((child) => hasListingPropTitle(child, title, seen));
+  }
+
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+
+  const element = node as {
+    props?: { listing?: { title?: unknown }; children?: unknown };
+  };
+
+  if (element.props?.listing?.title === title) {
+    return true;
+  }
+
+  return Object.values(element.props ?? {}).some((value) =>
+    hasListingPropTitle(value, title, seen),
+  );
+}
+
 describe("ProfilePage", () => {
   it("redirects signed-out users to login with a callback", async () => {
     vi.mocked(auth).mockResolvedValue(null);
@@ -125,6 +204,7 @@ describe("ProfilePage", () => {
 
     expect(getProfileUser).not.toHaveBeenCalled();
     expect(getListingsByOwner).not.toHaveBeenCalled();
+    expect(getSavedListingsByUser).not.toHaveBeenCalled();
   });
 
   it("renders the signed-in user's profile and all owned listing statuses", async () => {
@@ -145,11 +225,13 @@ describe("ProfilePage", () => {
       createdAt: new Date("2026-05-01T12:00:00.000Z"),
     });
     vi.mocked(getListingsByOwner).mockResolvedValue(ownedListings);
+    vi.mocked(getSavedListingsByUser).mockResolvedValue(savedListings);
 
     const page = await ProfilePage();
 
     expect(getProfileUser).toHaveBeenCalledWith(ownerId);
     expect(getListingsByOwner).toHaveBeenCalledWith(ownerId);
+    expect(getSavedListingsByUser).toHaveBeenCalledWith(ownerId);
     expect(includesText(page, "Owner Name")).toBe(true);
     expect(includesText(page, "owner@example.com")).toBe(true);
     expect(includesText(page, "Account basics")).toBe(true);
@@ -157,6 +239,8 @@ describe("ProfilePage", () => {
     expect(includesText(page, "Active room near SCSU")).toBe(true);
     expect(includesText(page, "Archived studio")).toBe(true);
     expect(includesText(page, "ARCHIVED")).toBe(true);
+    expect(includesText(page, "Saved listings")).toBe(true);
+    expect(hasListingPropTitle(page, "Saved studio near campus")).toBe(true);
     expect(hasHref(page, "/listings/507f1f77bcf86cd799439011/edit")).toBe(true);
   });
 });

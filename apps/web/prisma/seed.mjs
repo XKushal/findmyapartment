@@ -17,7 +17,7 @@ try {
   });
 
   console.log(
-    `Seeded dev data: ${result.users} users, ${result.listings} listings, ${result.reviews} reviews.`,
+    `Seeded dev data: ${result.users} users, ${result.listings} listings, ${result.reviews} reviews, ${result.savedListings} saved listings.`,
   );
 } finally {
   await prisma.$disconnect();

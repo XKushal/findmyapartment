@@ -2,9 +2,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ListingsPage from "@/app/listings/page";
 import { getActiveListings } from "@/features/listings/queries";
+import { getSavedListingIdsByUser } from "@/features/saved-listings/queries";
+import { auth } from "@/server/auth/auth";
 
 vi.mock("@/features/listings/queries", () => ({
   getActiveListings: vi.fn(),
+}));
+
+vi.mock("@/features/saved-listings/queries", () => ({
+  getSavedListingIdsByUser: vi.fn(),
+}));
+
+vi.mock("@/server/auth/auth", () => ({
+  auth: vi.fn(),
 }));
 
 function expandNode(node: unknown): unknown {
@@ -76,6 +86,8 @@ function hasInputDefault(node: unknown, name: string, defaultValue: string): boo
 describe("ListingsPage", () => {
   beforeEach(() => {
     vi.mocked(getActiveListings).mockReset();
+    vi.mocked(getSavedListingIdsByUser).mockReset();
+    vi.mocked(auth).mockReset();
   });
 
   it("uses URL filters for active listing discovery", async () => {
@@ -186,5 +198,55 @@ describe("ListingsPage", () => {
     expect(includesText(page, "Apply filters")).toBe(true);
     expect(includesText(page, "Clear")).toBe(true);
     expect(includesText(page, "Post listing")).toBe(false);
+  });
+
+  it("marks saved listings for signed-in users", async () => {
+    vi.mocked(auth).mockResolvedValue({
+      user: {
+        id: "507f1f77bcf86cd799439099",
+        email: "renter@example.com",
+        name: "Renter",
+      },
+      expires: "2026-06-01T00:00:00.000Z",
+    });
+    vi.mocked(getActiveListings).mockResolvedValue([
+      {
+        id: "507f1f77bcf86cd799439011",
+        title: "Saved room near campus",
+        type: "ROOM",
+        status: "ACTIVE",
+        description: "Walkable room with utilities included.",
+        rent: 650,
+        deposit: null,
+        utilitiesIncluded: true,
+        availableFrom: null,
+        leaseDuration: "12 months",
+        address: null,
+        distanceToCampus: "0.5 miles",
+        contactEmail: null,
+        contactPhone: null,
+        bedrooms: 1,
+        bathrooms: 1,
+        petPolicy: "UNKNOWN",
+        amenities: [],
+        imageUrls: [],
+        ownerId: null,
+        createdAt: new Date("2026-05-18T12:00:00.000Z"),
+        updatedAt: new Date("2026-05-19T12:00:00.000Z"),
+      },
+    ]);
+    vi.mocked(getSavedListingIdsByUser).mockResolvedValue([
+      "507f1f77bcf86cd799439011",
+    ]);
+
+    const page = await ListingsPage({
+      searchParams: Promise.resolve({}),
+    });
+
+    expect(getSavedListingIdsByUser).toHaveBeenCalledWith(
+      "507f1f77bcf86cd799439099",
+    );
+    expect(includesText(page, "Saved room near campus")).toBe(true);
+    expect(includesText(page, "Saved")).toBe(true);
   });
 });

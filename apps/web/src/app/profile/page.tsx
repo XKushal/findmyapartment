@@ -3,9 +3,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ListingArchiveButton } from "@/features/listings/components/listing-archive-button";
+import { ListingCard } from "@/features/listings/components/listing-card";
 import { getListingsByOwner } from "@/features/listings/queries";
 import { ProfileAccountForm } from "@/features/profile/components/profile-account-form";
 import { getProfileUser } from "@/features/profile/queries";
+import { getSavedListingsByUser } from "@/features/saved-listings/queries";
 import { auth } from "@/server/auth/auth";
 
 export const dynamic = "force-dynamic";
@@ -68,9 +70,10 @@ export default async function ProfilePage() {
     redirect("/login?callbackUrl=%2Fprofile");
   }
 
-  const [profileUser, listings] = await Promise.all([
+  const [profileUser, listings, savedListings] = await Promise.all([
     getProfileUser(session.user.id),
     getListingsByOwner(session.user.id),
+    getSavedListingsByUser(session.user.id),
   ]);
   const displayName = profileUser?.name ?? session.user.name ?? "Renter";
   const email = profileUser?.email ?? session.user.email;
@@ -149,6 +152,51 @@ export default async function ProfilePage() {
         ) : (
           <div className="mt-6 grid gap-3">
             {listings.map(renderProfileListingRow)}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-semibold text-zinc-950">
+              Saved listings
+            </h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Keep track of apartments and rooms you want to revisit.
+            </p>
+          </div>
+          <p className="text-sm font-medium text-zinc-500">
+            {savedListings.length} saved
+          </p>
+        </div>
+
+        {savedListings.length === 0 ? (
+          <div className="mt-6 rounded-md border border-dashed border-zinc-300 px-6 py-10 text-center">
+            <h3 className="text-lg font-semibold text-zinc-950">
+              No saved listings yet
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm text-zinc-600">
+              Save listings from the browse page or listing details when you
+              want to compare them later.
+            </p>
+            <Link
+              href="/listings"
+              className="mt-5 inline-flex rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+            >
+              Browse listings
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {savedListings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                isSaved
+                showSaveAction
+              />
+            ))}
           </div>
         )}
       </section>

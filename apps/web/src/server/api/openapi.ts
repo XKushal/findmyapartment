@@ -25,6 +25,7 @@ import {
   reviewUpdateBodySchema,
   reviewsResponseSchema,
 } from "@/features/reviews/schemas";
+import { savedListingResponseSchema } from "@/features/saved-listings/schemas";
 
 extendZodWithOpenApi(z);
 
@@ -73,6 +74,7 @@ export function createOpenApiDocument() {
   registry.register("ReviewUpdateBody", reviewUpdateBodySchema);
   registry.register("ReviewsResponse", reviewsResponseSchema);
   registry.register("ReviewDetailResponse", reviewDetailResponseSchema);
+  registry.register("SavedListingResponse", savedListingResponseSchema);
 
   registry.registerPath({
     method: "post",
@@ -189,6 +191,40 @@ export function createOpenApiDocument() {
     responses: {
       200: jsonContent(reviewsResponseSchema, "Listing reviews response."),
       400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
+
+  registry.registerPath({
+    method: "post",
+    path: "/api/listings/{id}/save",
+    summary: "Save listing",
+    description:
+      "Saves a listing for the signed-in user. Repeated saves are idempotent.",
+    request: {
+      params: listingParamsSchema,
+    },
+    responses: {
+      200: jsonContent(savedListingResponseSchema, "Saved listing response."),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
+
+  registry.registerPath({
+    method: "delete",
+    path: "/api/listings/{id}/save",
+    summary: "Unsave listing",
+    description:
+      "Removes a saved listing for the signed-in user. Missing saved rows are treated as already removed.",
+    request: {
+      params: listingParamsSchema,
+    },
+    responses: {
+      200: jsonContent(savedListingResponseSchema, "Unsaved listing response."),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
       500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
     },
   });

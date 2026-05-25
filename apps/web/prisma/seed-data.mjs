@@ -150,6 +150,19 @@ export const DEV_REVIEWS = [
   },
 ];
 
+export const DEV_SAVED_LISTINGS = [
+  {
+    id: "66a000000000000000000401",
+    userId: DEV_USERS[2].id,
+    listingId: DEV_LISTINGS[0].id,
+  },
+  {
+    id: "66a000000000000000000402",
+    userId: DEV_USERS[2].id,
+    listingId: DEV_LISTINGS[2].id,
+  },
+];
+
 function userWriteData(user, passwordHash) {
   return {
     email: user.email,
@@ -205,6 +218,21 @@ function reviewWriteData(review) {
   };
 }
 
+function savedListingWriteData(savedListing) {
+  return {
+    user: {
+      connect: {
+        id: savedListing.userId,
+      },
+    },
+    listing: {
+      connect: {
+        id: savedListing.listingId,
+      },
+    },
+  };
+}
+
 export async function seedDevData({ prisma, hashPassword }) {
   for (const user of DEV_USERS) {
     const passwordHash = await hashPassword(DEV_PASSWORD);
@@ -252,9 +280,25 @@ export async function seedDevData({ prisma, hashPassword }) {
     });
   }
 
+  for (const savedListing of DEV_SAVED_LISTINGS) {
+    const writeData = savedListingWriteData(savedListing);
+
+    await prisma.savedListing.upsert({
+      where: {
+        id: savedListing.id,
+      },
+      create: {
+        id: savedListing.id,
+        ...writeData,
+      },
+      update: writeData,
+    });
+  }
+
   return {
     users: DEV_USERS.length,
     listings: DEV_LISTINGS.length,
     reviews: DEV_REVIEWS.length,
+    savedListings: DEV_SAVED_LISTINGS.length,
   };
 }

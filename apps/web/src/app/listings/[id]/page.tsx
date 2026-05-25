@@ -4,6 +4,8 @@ import { ListingImageGallery } from "@/features/listings/components/listing-imag
 import { ReviewSection } from "@/features/reviews/components/review-section";
 import { getReviewsForListing } from "@/features/reviews/mutations";
 import { serializeReview } from "@/features/reviews/schemas";
+import { SavedListingButton } from "@/features/saved-listings/components/saved-listing-button";
+import { getSavedListingIdsByUser } from "@/features/saved-listings/queries";
 import { auth } from "@/server/auth/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -29,6 +31,10 @@ export default async function ListingDetailPage({
   }
 
   const isOwner = Boolean(session?.user?.id && session.user.id === listing.ownerId);
+  const savedListingIds = session?.user?.id
+    ? await getSavedListingIdsByUser(session.user.id)
+    : [];
+  const isSaved = savedListingIds.includes(listing.id);
   const hasContactInfo = Boolean(listing.contactEmail || listing.contactPhone);
   const details = [
     ["Deposit", listing.deposit === null ? "Not listed" : `$${listing.deposit}`],
@@ -67,7 +73,16 @@ export default async function ListingDetailPage({
             </Link>
             <ListingArchiveButton listingId={listing.id} />
           </div>
-        ) : null}
+        ) : session?.user?.id ? (
+          <SavedListingButton listingId={listing.id} initialSaved={isSaved} />
+        ) : (
+          <Link
+            href={`/login?callbackUrl=${encodeURIComponent(`/listings/${listing.id}`)}`}
+            className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-zinc-100"
+          >
+            Sign in to save
+          </Link>
+        )}
       </div>
       <h1 className="text-4xl font-semibold text-zinc-950">{listing.title}</h1>
       <p className="mt-4 text-xl font-medium text-zinc-950">
