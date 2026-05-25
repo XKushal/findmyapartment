@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import ListingDetailPage from "@/app/listings/[id]/page";
 import { getListingById } from "@/features/listings/queries";
 import { getReviewsForListing } from "@/features/reviews/mutations";
+import { getSavedListingIdsByUser } from "@/features/saved-listings/queries";
 import { auth } from "@/server/auth/auth";
 
 vi.mock("@/features/listings/queries", () => ({
@@ -11,6 +12,10 @@ vi.mock("@/features/listings/queries", () => ({
 
 vi.mock("@/features/reviews/mutations", () => ({
   getReviewsForListing: vi.fn(),
+}));
+
+vi.mock("@/features/saved-listings/queries", () => ({
+  getSavedListingIdsByUser: vi.fn(),
 }));
 
 vi.mock("@/server/auth/auth", () => ({
@@ -69,9 +74,34 @@ function hasHref(node: unknown, href: string): boolean {
   return hasHref(children, href);
 }
 
+function includesText(
+  node: unknown,
+  text: string,
+  seen = new WeakSet<object>(),
+): boolean {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node).includes(text);
+  }
+
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+
+  const values = Object.values(node);
+
+  return values.some((value) => includesText(value, text, seen));
+}
+
 describe("ListingDetailPage", () => {
   beforeEach(() => {
+    vi.mocked(getSavedListingIdsByUser).mockReset();
     vi.mocked(getReviewsForListing).mockResolvedValue([]);
+    vi.mocked(getSavedListingIdsByUser).mockResolvedValue([]);
   });
 
   it("shows edit controls for the listing owner", async () => {
@@ -110,10 +140,11 @@ describe("ListingDetailPage", () => {
       params: Promise.resolve({ id: listing.id }),
     });
 
-    expect(JSON.stringify(page)).toContain(
+    expect(includesText(
+      page,
       "The room details were accurate and the poster replied quickly.",
-    );
-    expect(JSON.stringify(page)).toContain('"rating":5');
+    )).toBe(true);
+    expect(includesText(page, "Renter One")).toBe(true);
     expect(getReviewsForListing).toHaveBeenCalledWith(listing.id);
   });
 });

@@ -29,28 +29,29 @@ enum PetPolicy {
 }
 
 model User {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  email        String    @unique
-  name         String?
-  image        String?
-  contactEmail String?
-  contactPhone String?
-  passwordHash String?
-  listings     Listing[]
-  reviews      Review[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  email         String         @unique
+  name          String?
+  image         String?
+  contactEmail  String?
+  contactPhone  String?
+  passwordHash  String?
+  listings      Listing[]
+  reviews       Review[]
+  savedListings SavedListing[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Listing {
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  id                String         @id @default(auto()) @map("_id") @db.ObjectId
   title             String
   type              ListingType
-  status            ListingStatus @default(ACTIVE)
+  status            ListingStatus  @default(ACTIVE)
   description       String
   rent              Int
   deposit           Int?
-  utilitiesIncluded Boolean       @default(false)
+  utilitiesIncluded Boolean        @default(false)
   availableFrom     DateTime?
   leaseDuration     String?
   address           String?
@@ -59,14 +60,15 @@ model Listing {
   contactPhone      String?
   bedrooms          Int?
   bathrooms         Float?
-  petPolicy         PetPolicy     @default(UNKNOWN)
+  petPolicy         PetPolicy      @default(UNKNOWN)
   amenities         String[]
   imageUrls         String[]
-  ownerId           String?       @db.ObjectId
-  owner             User?         @relation(fields: [ownerId], references: [id])
+  ownerId           String?        @db.ObjectId
+  owner             User?          @relation(fields: [ownerId], references: [id])
   reviews           Review[]
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  savedBy           SavedListing[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
   @@index([status])
   @@index([type])
@@ -79,6 +81,19 @@ model Listing {
   @@index([status, bathrooms])
   @@index([status, availableFrom])
   @@index([status, petPolicy])
+}
+
+model SavedListing {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  listingId String   @db.ObjectId
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+  @@index([userId, createdAt])
+  @@index([listingId])
 }
 
 model Review {

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DEV_LISTINGS,
   DEV_REVIEWS,
+  DEV_SAVED_LISTINGS,
   DEV_USERS,
   seedDevData,
 } from "./seed-data.mjs";
@@ -18,6 +19,9 @@ function createPrismaMock() {
     review: {
       upsert: vi.fn(),
     },
+    savedListing: {
+      upsert: vi.fn(),
+    },
   };
 }
 
@@ -26,6 +30,7 @@ describe("dev seed data", () => {
     expect(DEV_USERS).toHaveLength(3);
     expect(DEV_LISTINGS.length).toBeGreaterThanOrEqual(4);
     expect(DEV_REVIEWS.length).toBeGreaterThanOrEqual(4);
+    expect(DEV_SAVED_LISTINGS.length).toBeGreaterThanOrEqual(2);
     expect(DEV_USERS.map((user) => user.email)).toEqual([
       "owner.one@example.com",
       "owner.two@example.com",
@@ -42,6 +47,9 @@ describe("dev seed data", () => {
     expect(prisma.user.upsert).toHaveBeenCalledTimes(DEV_USERS.length);
     expect(prisma.listing.upsert).toHaveBeenCalledTimes(DEV_LISTINGS.length);
     expect(prisma.review.upsert).toHaveBeenCalledTimes(DEV_REVIEWS.length);
+    expect(prisma.savedListing.upsert).toHaveBeenCalledTimes(
+      DEV_SAVED_LISTINGS.length,
+    );
     expect(hashPassword).toHaveBeenCalledTimes(DEV_USERS.length);
 
     expect(prisma.user.upsert).toHaveBeenCalledWith(
@@ -93,6 +101,25 @@ describe("dev seed data", () => {
           author: {
             connect: {
               id: DEV_REVIEWS[0].authorId,
+            },
+          },
+        }),
+      }),
+    );
+
+    expect(prisma.savedListing.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: DEV_SAVED_LISTINGS[0].id },
+        create: expect.objectContaining({
+          id: DEV_SAVED_LISTINGS[0].id,
+          user: {
+            connect: {
+              id: DEV_SAVED_LISTINGS[0].userId,
+            },
+          },
+          listing: {
+            connect: {
+              id: DEV_SAVED_LISTINGS[0].listingId,
             },
           },
         }),

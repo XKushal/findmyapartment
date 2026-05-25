@@ -12,6 +12,8 @@ import {
   listingQuerySchema,
   type ListingQueryInput,
 } from "@/features/listings/schemas";
+import { getSavedListingIdsByUser } from "@/features/saved-listings/queries";
+import { auth } from "@/server/auth/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +36,14 @@ async function parseListingFilters(
 
 export default async function ListingsPage({ searchParams }: ListingsPageProps) {
   const filters = await parseListingFilters(searchParams);
-  const listings = await getActiveListings(filters);
+  const [listings, session] = await Promise.all([
+    getActiveListings(filters),
+    auth(),
+  ]);
+  const savedListingIds = session?.user?.id
+    ? await getSavedListingIdsByUser(session.user.id)
+    : [];
+  const savedListingIdSet = new Set(savedListingIds);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -69,7 +78,12 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {listings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
+            <ListingCard
+              key={listing.id}
+              listing={listing}
+              isSaved={savedListingIdSet.has(listing.id)}
+              showSaveAction={Boolean(session?.user?.id)}
+            />
           ))}
         </div>
       )}
