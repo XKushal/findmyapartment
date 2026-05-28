@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { RoommateFitFields } from "@/features/listings/components/listing-create-form";
+import {
+  filterListingImageFiles,
+  RoommateFitFields,
+} from "@/features/listings/components/listing-create-form";
 
 function includesText(
   node: unknown,
@@ -39,5 +42,49 @@ describe("RoommateFitFields", () => {
     expect(includesText(fields, "Roommate fit")).toBe(true);
     expect(includesText(fields, "Preferred gender")).toBe(true);
     expect(includesText(fields, "Graduate students preferred")).toBe(true);
+  });
+});
+
+describe("filterListingImageFiles", () => {
+  it("keeps supported images within the size limit", () => {
+    const png = new File(["image"], "room.png", { type: "image/png" });
+    const jpeg = new File(["image"], "room.jpg", { type: "image/jpeg" });
+
+    expect(filterListingImageFiles([png, jpeg], 0)).toEqual({
+      files: [png, jpeg],
+      error: null,
+    });
+  });
+
+  it("rejects unsupported image types", () => {
+    const gif = new File(["image"], "room.gif", { type: "image/gif" });
+
+    expect(filterListingImageFiles([gif], 0)).toEqual({
+      files: [],
+      error: "Only JPEG, PNG, and WebP images are supported.",
+    });
+  });
+
+  it("rejects oversized images", () => {
+    const oversized = new File(
+      [new Uint8Array(2 * 1024 * 1024 + 1)],
+      "large.png",
+      { type: "image/png" },
+    );
+
+    expect(filterListingImageFiles([oversized], 0)).toEqual({
+      files: [],
+      error: "Each image must be 2 MB or smaller.",
+    });
+  });
+
+  it("limits files to the remaining image slots", () => {
+    const first = new File(["image"], "one.png", { type: "image/png" });
+    const second = new File(["image"], "two.png", { type: "image/png" });
+
+    expect(filterListingImageFiles([first, second], 4)).toEqual({
+      files: [first],
+      error: "Only 1 more image(s) can be added.",
+    });
   });
 });

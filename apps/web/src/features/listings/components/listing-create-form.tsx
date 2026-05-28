@@ -4,7 +4,12 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, type DragEvent, type FormEvent } from "react";
 
 import { createListingPayloadFromFormData } from "@/features/listings/form-payload";
-import type { ListingCreateInput } from "@/features/listings/schemas";
+import {
+  LISTING_IMAGE_ACCEPTED_MIME_TYPES,
+  LISTING_IMAGE_MAX_BYTES,
+  LISTING_IMAGE_MAX_COUNT,
+  type ListingCreateInput,
+} from "@/features/listings/schemas";
 import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ApiErrorBody = {
@@ -52,7 +57,9 @@ type ListingCreateFormProps = {
   defaultContactPhone?: string | null;
 };
 
-const MAX_IMAGES = 5;
+const LISTING_IMAGE_ACCEPT = LISTING_IMAGE_ACCEPTED_MIME_TYPES.join(",");
+const LISTING_IMAGE_TYPE_ERROR = "Only JPEG, PNG, and WebP images are supported.";
+const LISTING_IMAGE_SIZE_ERROR = "Each image must be 2 MB or smaller.";
 
 function toDateInputValue(value: Date | string | null | undefined) {
   if (!value) {
@@ -69,6 +76,45 @@ function readFileAsDataUrl(file: File) {
     reader.addEventListener("error", () => reject(reader.error));
     reader.readAsDataURL(file);
   });
+}
+
+export function filterListingImageFiles(
+  files: FileList | File[],
+  currentImageCount: number,
+) {
+  const acceptedTypes = new Set<string>(LISTING_IMAGE_ACCEPTED_MIME_TYPES);
+  const slotsAvailable = LISTING_IMAGE_MAX_COUNT - currentImageCount;
+
+  if (slotsAvailable <= 0) {
+    return {
+      files: [],
+      error: `You can upload up to ${LISTING_IMAGE_MAX_COUNT} images.`,
+    };
+  }
+
+  let error: string | null = null;
+  const validFiles = Array.from(files).filter((file) => {
+    if (!acceptedTypes.has(file.type)) {
+      error ??= LISTING_IMAGE_TYPE_ERROR;
+      return false;
+    }
+
+    if (file.size > LISTING_IMAGE_MAX_BYTES) {
+      error ??= LISTING_IMAGE_SIZE_ERROR;
+      return false;
+    }
+
+    return true;
+  });
+
+  if (validFiles.length > slotsAvailable) {
+    error = `Only ${slotsAvailable} more image(s) can be added.`;
+  }
+
+  return {
+    files: validFiles.slice(0, slotsAvailable),
+    error,
+  };
 }
 
 type RoommateFitFieldsProps = {
@@ -219,23 +265,17 @@ export function ListingCreateForm({
     setError(null);
     setNotice(null);
 
-    const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/"),
-    );
-    const slotsAvailable = MAX_IMAGES - imageUrls.length;
+    const result = filterListingImageFiles(files, imageUrls.length);
 
-    if (slotsAvailable <= 0) {
-      setError(`You can upload up to ${MAX_IMAGES} images.`);
+    if (result.error) {
+      setError(result.error);
+    }
+
+    if (result.files.length === 0) {
       return;
     }
 
-    if (imageFiles.length > slotsAvailable) {
-      setError(`Only ${slotsAvailable} more image(s) can be added.`);
-    }
-
-    const nextImages = await Promise.all(
-      imageFiles.slice(0, slotsAvailable).map(readFileAsDataUrl),
-    );
+    const nextImages = await Promise.all(result.files.map(readFileAsDataUrl));
 
     setImageUrls((current) => [...current, ...nextImages]);
   }
@@ -580,7 +620,7 @@ export function ListingCreateForm({
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-medium text-zinc-800">Images</p>
           <p className="text-xs text-zinc-500">
-            {imageUrls.length}/{MAX_IMAGES}
+            {imageUrls.length}/{LISTING_IMAGE_MAX_COUNT}
           </p>
         </div>
         <div
@@ -591,7 +631,7 @@ export function ListingCreateForm({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept={LISTING_IMAGE_ACCEPT}
             multiple
             className="hidden"
             onChange={(event) => {

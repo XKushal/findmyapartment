@@ -12,9 +12,25 @@ export const petPolicySchema = z.enum([
   "DOGS_ONLY",
   "PETS_ALLOWED",
 ]);
+export const LISTING_IMAGE_MAX_COUNT = 5;
+export const LISTING_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
+export const LISTING_IMAGE_ACCEPTED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+const listingImageDataUrlPattern = new RegExp(
+  `^data:(${LISTING_IMAGE_ACCEPTED_MIME_TYPES.join("|")});base64,`,
+);
+const hostedImageUrlSchema = z.string().url().startsWith("https://");
 const imageUrlSchema = z
   .string()
-  .url()
+  .refine(
+    (value) =>
+      hostedImageUrlSchema.safeParse(value).success ||
+      listingImageDataUrlPattern.test(value),
+    "Image must be an HTTPS URL or a supported JPEG, PNG, or WebP data URL.",
+  )
   .openapi({ example: "https://example.com/listing-photo.jpg" });
 
 const nullableEmailSchema = z
@@ -133,6 +149,7 @@ export const listingCreateBodySchema = z.object({
   amenities: z.array(z.string().trim().min(1)).default([]),
   imageUrls: z
     .array(imageUrlSchema)
+    .max(LISTING_IMAGE_MAX_COUNT)
     .default([])
     .openapi({ example: ["https://example.com/listing-photo.jpg"] }),
   roommateCount: nullableRoommateCountSchema.default(null),
@@ -164,6 +181,7 @@ export const listingUpdateBodySchema = z
     amenities: z.array(z.string().trim().min(1)).optional(),
     imageUrls: z
       .array(imageUrlSchema)
+      .max(LISTING_IMAGE_MAX_COUNT)
       .optional()
       .openapi({ example: ["https://example.com/listing-photo.jpg"] }),
     roommateCount: nullableRoommateCountSchema.optional(),
