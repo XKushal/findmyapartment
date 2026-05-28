@@ -18,6 +18,12 @@ type ContactRequestFormProps = {
   defaultContactPhone?: string | null;
 };
 
+type SubmitContactRequestOptions = {
+  fetcher?: typeof fetch;
+  formData: FormData;
+  listingId: string;
+};
+
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
@@ -47,6 +53,29 @@ export function contactRequestPayloadFromFormData(
   };
 }
 
+export async function submitContactRequest({
+  fetcher = fetch,
+  formData,
+  listingId,
+}: SubmitContactRequestOptions) {
+  const response = await fetcher(`/api/listings/${listingId}/contact-requests`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(contactRequestPayloadFromFormData(formData)),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorMessage(
+        response,
+        "Could not send request. Please try again.",
+      ),
+    );
+  }
+}
+
 export function ContactRequestForm({
   listingId,
   defaultContactEmail,
@@ -59,41 +88,29 @@ export function ContactRequestForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     setError(null);
     setNotice("Sending request...");
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`/api/listings/${listingId}/contact-requests`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(
-          contactRequestPayloadFromFormData(new FormData(event.currentTarget)),
-        ),
-      });
-
-      if (!response.ok) {
-        setNotice(null);
-        setError(
-          await readErrorMessage(
-            response,
-            "Could not send request. Please try again.",
-          ),
-        );
-        return;
-      }
-
-      event.currentTarget.reset();
-      setNotice("Request sent.");
-      router.refresh();
-    } catch {
+      await submitContactRequest({ formData, listingId });
+    } catch (submitError) {
       setNotice(null);
-      setError("Could not send request. Please try again.");
-    } finally {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Could not send request. Please try again.",
+      );
       setIsSubmitting(false);
+      return;
     }
+
+    form.reset();
+    setNotice("Request sent.");
+    router.refresh();
+    setIsSubmitting(false);
   }
 
   return (
