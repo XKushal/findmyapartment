@@ -1,5 +1,8 @@
+import { redirect } from "next/navigation";
+
 import { resolveAuthCallbackUrl } from "@/features/auth/callback-url";
 import { LoginForm } from "@/features/auth/components/login-form";
+import { auth } from "@/server/auth/auth";
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -9,6 +12,11 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const callbackUrl = resolveAuthCallbackUrl((await searchParams).callbackUrl);
+  const session = await auth();
+
+  if (session?.user?.id) {
+    redirect(callbackUrl);
+  }
 
   return (
     <main className="mx-auto w-full max-w-md px-6 py-12">
