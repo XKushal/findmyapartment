@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { type ContactRequestApiResponse } from "@/features/contact-requests/schemas";
 
 function formatDate(value: string) {
@@ -62,8 +64,13 @@ export function ContactRequestsReceivedList({
             >
               <div className="flex flex-wrap justify-between gap-3">
                 <div>
-                  <h3 className="font-semibold text-zinc-950">
-                    {request.listingTitle}
+                  <h3 className="font-semibold">
+                    <Link
+                      href={`/listings/${request.listingId}`}
+                      className="text-zinc-950 underline-offset-4 hover:underline"
+                    >
+                      {request.listingTitle}
+                    </Link>
                   </h3>
                   <p className="mt-1 text-sm text-zinc-600">
                     From {request.requesterName ?? request.requesterEmail ?? "Renter"}
@@ -128,8 +135,13 @@ export function ContactRequestsSentList({
             >
               <div className="flex flex-wrap justify-between gap-3">
                 <div>
-                  <h3 className="font-semibold text-zinc-950">
-                    {request.listingTitle}
+                  <h3 className="font-semibold">
+                    <Link
+                      href={`/listings/${request.listingId}`}
+                      className="text-zinc-950 underline-offset-4 hover:underline"
+                    >
+                      {request.listingTitle}
+                    </Link>
                   </h3>
                   <p className="mt-1 text-sm text-zinc-600">
                     To {request.ownerName ?? request.ownerEmail ?? "Owner"}
