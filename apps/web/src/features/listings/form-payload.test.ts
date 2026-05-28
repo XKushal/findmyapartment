@@ -43,6 +43,38 @@ describe("createListingPayloadFromFormData", () => {
       petPolicy: "PETS_ALLOWED",
       amenities: ["Laundry", "Parking"],
       imageUrls: ["data:image/png;base64,abc123", "data:image/jpeg;base64,def456"],
+      roommateCount: null,
+      preferredGender: null,
+      lifestyle: null,
+      cleanliness: null,
+      smokingPolicy: null,
+      roommatePreferences: null,
     });
+  });
+
+  it("normalizes roommate form fields for the create endpoint", () => {
+    const formData = new FormData();
+    formData.set("title", "  Fall roommate lead  ");
+    formData.set("type", "ROOMMATE");
+    formData.set("description", "Looking for one roommate");
+    formData.set("rent", "575");
+    formData.set("roommateCount", "1");
+    formData.set("preferredGender", " No preference ");
+    formData.set("lifestyle", " Quiet weekdays ");
+    formData.set("cleanliness", "");
+    formData.set("smokingPolicy", " No smoking ");
+    formData.set("roommatePreferences", " Graduate students preferred ");
+
+    expect(createListingPayloadFromFormData(formData)).toEqual(
+      expect.objectContaining({
+        type: "ROOMMATE",
+        roommateCount: 1,
+        preferredGender: "No preference",
+        lifestyle: "Quiet weekdays",
+        cleanliness: null,
+        smokingPolicy: "No smoking",
+        roommatePreferences: "Graduate students preferred",
+      }),
+    );
   });
 });

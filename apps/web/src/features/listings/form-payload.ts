@@ -61,5 +61,11 @@ export function createListingPayloadFromFormData(
     petPolicy: stringValue(formData, "petPolicy") as ListingCreateInput["petPolicy"],
     amenities: textareaListValue(formData, "amenities"),
     imageUrls: repeatedStringValue(formData, "imageUrls"),
+    roommateCount: nullableNumberValue(formData, "roommateCount"),
+    preferredGender: nullableStringValue(formData, "preferredGender"),
+    lifestyle: nullableStringValue(formData, "lifestyle"),
+    cleanliness: nullableStringValue(formData, "cleanliness"),
+    smokingPolicy: nullableStringValue(formData, "smokingPolicy"),
+    roommatePreferences: nullableStringValue(formData, "roommatePreferences"),
   };
 }

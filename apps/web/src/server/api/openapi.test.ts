@@ -22,6 +22,25 @@ describe("OpenAPI document", () => {
     expect(document.components?.schemas?.ApiErrorResponse).toBeDefined();
     expect(document.components?.schemas?.RegisterResponse).toBeDefined();
     expect(document.components?.schemas?.ReviewDetailResponse).toBeDefined();
+    expect(document.components?.schemas?.ListingCreateBody).toMatchObject({
+      properties: expect.objectContaining({
+        roommatePreferences: expect.any(Object),
+      }),
+    });
+    expect(document.components?.schemas?.ListingUpdateBody).toMatchObject({
+      properties: expect.objectContaining({
+        roommatePreferences: expect.any(Object),
+      }),
+    });
+    expect(document.components?.schemas?.ListingDetailResponse).toMatchObject({
+      properties: {
+        listing: {
+          properties: {
+            roommatePreferences: expect.any(Object),
+          },
+        },
+      },
+    });
     expect(document.paths["/api/listings"]?.post?.responses?.[401]).toBeDefined();
     expect(document.paths["/api/listings/{id}"]?.patch?.responses?.[403]).toBeDefined();
     expect(document.paths["/api/listings/{id}/save"]?.post?.responses?.[401]).toBeDefined();

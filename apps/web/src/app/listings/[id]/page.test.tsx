@@ -47,6 +47,12 @@ const listing = {
   bathrooms: 1,
   amenities: ["Laundry"],
   imageUrls: ["data:image/png;base64,abc123"],
+  roommateCount: null,
+  preferredGender: null,
+  lifestyle: null,
+  cleanliness: null,
+  smokingPolicy: null,
+  roommatePreferences: null,
   ownerId: "507f1f77bcf86cd799439099",
   createdAt: new Date("2026-05-18T12:00:00.000Z"),
   updatedAt: new Date("2026-05-18T12:00:00.000Z"),
@@ -146,5 +152,26 @@ describe("ListingDetailPage", () => {
     )).toBe(true);
     expect(includesText(page, "Renter One")).toBe(true);
     expect(getReviewsForListing).toHaveBeenCalledWith(listing.id);
+  });
+
+  it("shows roommate fit details for roommate listings", async () => {
+    vi.mocked(getListingById).mockResolvedValue({
+      ...listing,
+      type: "ROOMMATE",
+      roommateCount: 1,
+      preferredGender: "No preference",
+      lifestyle: "Quiet weekdays",
+      cleanliness: "Shared chores weekly",
+      smokingPolicy: "No smoking",
+      roommatePreferences: "Graduate students preferred",
+    });
+    vi.mocked(auth).mockResolvedValue(null);
+
+    const page = await ListingDetailPage({
+      params: Promise.resolve({ id: listing.id }),
+    });
+
+    expect(includesText(page, "Roommate fit")).toBe(true);
+    expect(includesText(page, "Shared chores weekly")).toBe(true);
   });
 });

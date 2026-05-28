@@ -29,6 +29,8 @@ const nullablePhoneSchema = z
   .min(7)
   .max(30)
   .nullable();
+const nullableTrimmedStringSchema = z.string().trim().min(1).nullable();
+const nullableRoommateCountSchema = z.number().int().positive().nullable();
 
 const optionalQueryNumberSchema = z.preprocess(
   (value) => (value === "" || value === null ? undefined : value),
@@ -92,6 +94,12 @@ export const listingResponseSchema = z.object({
   petPolicy: petPolicySchema,
   amenities: z.array(z.string()),
   imageUrls: z.array(imageUrlSchema),
+  roommateCount: nullableRoommateCountSchema.default(null),
+  preferredGender: nullableTrimmedStringSchema.default(null),
+  lifestyle: nullableTrimmedStringSchema.default(null),
+  cleanliness: nullableTrimmedStringSchema.default(null),
+  smokingPolicy: nullableTrimmedStringSchema.default(null),
+  roommatePreferences: nullableTrimmedStringSchema.default(null),
   ownerId: z.string().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -127,6 +135,12 @@ export const listingCreateBodySchema = z.object({
     .array(imageUrlSchema)
     .default([])
     .openapi({ example: ["https://example.com/listing-photo.jpg"] }),
+  roommateCount: nullableRoommateCountSchema.default(null),
+  preferredGender: nullableTrimmedStringSchema.default(null),
+  lifestyle: nullableTrimmedStringSchema.default(null),
+  cleanliness: nullableTrimmedStringSchema.default(null),
+  smokingPolicy: nullableTrimmedStringSchema.default(null),
+  roommatePreferences: nullableTrimmedStringSchema.default(null),
 });
 
 export const listingUpdateBodySchema = z
@@ -152,6 +166,12 @@ export const listingUpdateBodySchema = z
       .array(imageUrlSchema)
       .optional()
       .openapi({ example: ["https://example.com/listing-photo.jpg"] }),
+    roommateCount: nullableRoommateCountSchema.optional(),
+    preferredGender: nullableTrimmedStringSchema.optional(),
+    lifestyle: nullableTrimmedStringSchema.optional(),
+    cleanliness: nullableTrimmedStringSchema.optional(),
+    smokingPolicy: nullableTrimmedStringSchema.optional(),
+    roommatePreferences: nullableTrimmedStringSchema.optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {
     message: "At least one listing field is required.",
@@ -205,6 +225,12 @@ type ListingForApi = {
   petPolicy: "UNKNOWN" | "NO_PETS" | "CATS_ONLY" | "DOGS_ONLY" | "PETS_ALLOWED";
   amenities: string[];
   imageUrls: string[];
+  roommateCount?: number | null;
+  preferredGender?: string | null;
+  lifestyle?: string | null;
+  cleanliness?: string | null;
+  smokingPolicy?: string | null;
+  roommatePreferences?: string | null;
   ownerId: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -215,6 +241,12 @@ export function serializeListing(listing: ListingForApi): ListingApiResponse {
     ...listing,
     contactEmail: listing.contactEmail ?? null,
     contactPhone: listing.contactPhone ?? null,
+    roommateCount: listing.roommateCount ?? null,
+    preferredGender: listing.preferredGender ?? null,
+    lifestyle: listing.lifestyle ?? null,
+    cleanliness: listing.cleanliness ?? null,
+    smokingPolicy: listing.smokingPolicy ?? null,
+    roommatePreferences: listing.roommatePreferences ?? null,
     availableFrom: listing.availableFrom?.toISOString() ?? null,
     createdAt: listing.createdAt.toISOString(),
     updatedAt: listing.updatedAt.toISOString(),
