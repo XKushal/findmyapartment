@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 import ProfilePage from "@/app/profile/page";
+import {
+  getReceivedContactRequestsByOwner,
+  getSentContactRequestsByRequester,
+} from "@/features/contact-requests/queries";
 import { getListingsByOwner } from "@/features/listings/queries";
 import { getProfileUser } from "@/features/profile/queries";
 import { getSavedListingsByUser } from "@/features/saved-listings/queries";
@@ -8,6 +12,11 @@ import { auth } from "@/server/auth/auth";
 
 vi.mock("@/features/listings/queries", () => ({
   getListingsByOwner: vi.fn(),
+}));
+
+vi.mock("@/features/contact-requests/queries", () => ({
+  getReceivedContactRequestsByOwner: vi.fn(),
+  getSentContactRequestsByRequester: vi.fn(),
 }));
 
 vi.mock("@/features/profile/queries", () => ({
@@ -194,6 +203,36 @@ function hasListingPropTitle(
   );
 }
 
+function hasContactRequestsProp(
+  node: unknown,
+  seen = new WeakSet<object>(),
+): boolean {
+  if (Array.isArray(node)) {
+    return node.some((child) => hasContactRequestsProp(child, seen));
+  }
+
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+
+  const element = node as {
+    props?: { contactRequests?: unknown[]; children?: unknown };
+  };
+
+  if (Array.isArray(element.props?.contactRequests)) {
+    return true;
+  }
+
+  return Object.values(element.props ?? {}).some((value) =>
+    hasContactRequestsProp(value, seen),
+  );
+}
+
 describe("ProfilePage", () => {
   it("redirects signed-out users to login with a callback", async () => {
     vi.mocked(auth).mockResolvedValue(null);
@@ -205,6 +244,8 @@ describe("ProfilePage", () => {
     expect(getProfileUser).not.toHaveBeenCalled();
     expect(getListingsByOwner).not.toHaveBeenCalled();
     expect(getSavedListingsByUser).not.toHaveBeenCalled();
+    expect(getReceivedContactRequestsByOwner).not.toHaveBeenCalled();
+    expect(getSentContactRequestsByRequester).not.toHaveBeenCalled();
   });
 
   it("renders the signed-in user's profile and all owned listing statuses", async () => {
@@ -226,12 +267,16 @@ describe("ProfilePage", () => {
     });
     vi.mocked(getListingsByOwner).mockResolvedValue(ownedListings);
     vi.mocked(getSavedListingsByUser).mockResolvedValue(savedListings);
+    vi.mocked(getReceivedContactRequestsByOwner).mockResolvedValue([]);
+    vi.mocked(getSentContactRequestsByRequester).mockResolvedValue([]);
 
     const page = await ProfilePage();
 
     expect(getProfileUser).toHaveBeenCalledWith(ownerId);
     expect(getListingsByOwner).toHaveBeenCalledWith(ownerId);
     expect(getSavedListingsByUser).toHaveBeenCalledWith(ownerId);
+    expect(getReceivedContactRequestsByOwner).toHaveBeenCalledWith(ownerId);
+    expect(getSentContactRequestsByRequester).toHaveBeenCalledWith(ownerId);
     expect(includesText(page, "Owner Name")).toBe(true);
     expect(includesText(page, "owner@example.com")).toBe(true);
     expect(includesText(page, "Account basics")).toBe(true);
@@ -240,6 +285,7 @@ describe("ProfilePage", () => {
     expect(includesText(page, "Archived studio")).toBe(true);
     expect(includesText(page, "ARCHIVED")).toBe(true);
     expect(includesText(page, "Saved listings")).toBe(true);
+    expect(hasContactRequestsProp(page)).toBe(true);
     expect(hasListingPropTitle(page, "Saved studio near campus")).toBe(true);
     expect(hasHref(page, "/listings/507f1f77bcf86cd799439011/edit")).toBe(true);
   });

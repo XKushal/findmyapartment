@@ -2,12 +2,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ListingDetailPage from "@/app/listings/[id]/page";
 import { getListingById } from "@/features/listings/queries";
+import { getProfileUser } from "@/features/profile/queries";
 import { getReviewsForListing } from "@/features/reviews/mutations";
 import { getSavedListingIdsByUser } from "@/features/saved-listings/queries";
 import { auth } from "@/server/auth/auth";
 
 vi.mock("@/features/listings/queries", () => ({
   getListingById: vi.fn(),
+}));
+
+vi.mock("@/features/profile/queries", () => ({
+  getProfileUser: vi.fn(),
 }));
 
 vi.mock("@/features/reviews/mutations", () => ({
@@ -103,11 +108,50 @@ function includesText(
   return values.some((value) => includesText(value, text, seen));
 }
 
+function hasContactRequestForm(
+  node: unknown,
+  seen = new WeakSet<object>(),
+): boolean {
+  if (Array.isArray(node)) {
+    return node.some((child) => hasContactRequestForm(child, seen));
+  }
+
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+
+  const element = node as {
+    props?: {
+      listingId?: unknown;
+      defaultContactEmail?: unknown;
+      children?: unknown;
+    };
+  };
+
+  if (
+    element.props?.listingId === listing.id &&
+    element.props?.defaultContactEmail === "renter@example.com"
+  ) {
+    return true;
+  }
+
+  return Object.values(element.props ?? {}).some((value) =>
+    hasContactRequestForm(value, seen),
+  );
+}
+
 describe("ListingDetailPage", () => {
   beforeEach(() => {
     vi.mocked(getSavedListingIdsByUser).mockReset();
+    vi.mocked(getProfileUser).mockReset();
     vi.mocked(getReviewsForListing).mockResolvedValue([]);
     vi.mocked(getSavedListingIdsByUser).mockResolvedValue([]);
+    vi.mocked(getProfileUser).mockResolvedValue(null);
   });
 
   it("shows edit controls for the listing owner", async () => {
@@ -173,5 +217,30 @@ describe("ListingDetailPage", () => {
 
     expect(includesText(page, "Roommate fit")).toBe(true);
     expect(includesText(page, "Shared chores weekly")).toBe(true);
+  });
+
+  it("shows the contact request form for signed-in non-owners", async () => {
+    vi.mocked(getListingById).mockResolvedValue(listing);
+    vi.mocked(auth).mockResolvedValue({
+      user: {
+        id: "507f1f77bcf86cd799439088",
+        email: "renter@example.com",
+      },
+      expires: "2026-06-01T00:00:00.000Z",
+    });
+    vi.mocked(getProfileUser).mockResolvedValue({
+      id: "507f1f77bcf86cd799439088",
+      email: "renter@example.com",
+      name: "Renter One",
+      contactEmail: "renter@example.com",
+      contactPhone: "320-555-0103",
+      createdAt: new Date("2026-05-01T12:00:00.000Z"),
+    });
+
+    const page = await ListingDetailPage({
+      params: Promise.resolve({ id: listing.id }),
+    });
+
+    expect(hasContactRequestForm(page)).toBe(true);
   });
 });
