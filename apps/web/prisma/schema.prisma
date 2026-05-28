@@ -28,30 +28,38 @@ enum PetPolicy {
   PETS_ALLOWED
 }
 
+enum ContactMethod {
+  EMAIL
+  PHONE
+  ANY
+}
+
 model User {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  email         String         @unique
-  name          String?
-  image         String?
-  contactEmail  String?
-  contactPhone  String?
-  passwordHash  String?
-  listings      Listing[]
-  reviews       Review[]
-  savedListings SavedListing[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                      String           @id @default(auto()) @map("_id") @db.ObjectId
+  email                   String           @unique
+  name                    String?
+  image                   String?
+  contactEmail            String?
+  contactPhone            String?
+  passwordHash            String?
+  listings                Listing[]
+  reviews                 Review[]
+  savedListings           SavedListing[]
+  contactRequestsSent     ContactRequest[] @relation("ContactRequestRequester")
+  contactRequestsReceived ContactRequest[] @relation("ContactRequestOwner")
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
 }
 
 model Listing {
-  id                  String         @id @default(auto()) @map("_id") @db.ObjectId
+  id                  String           @id @default(auto()) @map("_id") @db.ObjectId
   title               String
   type                ListingType
-  status              ListingStatus  @default(ACTIVE)
+  status              ListingStatus    @default(ACTIVE)
   description         String
   rent                Int
   deposit             Int?
-  utilitiesIncluded   Boolean        @default(false)
+  utilitiesIncluded   Boolean          @default(false)
   availableFrom       DateTime?
   leaseDuration       String?
   address             String?
@@ -60,7 +68,7 @@ model Listing {
   contactPhone        String?
   bedrooms            Int?
   bathrooms           Float?
-  petPolicy           PetPolicy      @default(UNKNOWN)
+  petPolicy           PetPolicy        @default(UNKNOWN)
   amenities           String[]
   imageUrls           String[]
   roommateCount       Int?
@@ -69,12 +77,13 @@ model Listing {
   cleanliness         String?
   smokingPolicy       String?
   roommatePreferences String?
-  ownerId             String?        @db.ObjectId
-  owner               User?          @relation(fields: [ownerId], references: [id])
+  ownerId             String?          @db.ObjectId
+  owner               User?            @relation(fields: [ownerId], references: [id])
   reviews             Review[]
   savedBy             SavedListing[]
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  contactRequests     ContactRequest[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 
   @@index([status])
   @@index([type])
@@ -100,6 +109,26 @@ model SavedListing {
   @@unique([userId, listingId])
   @@index([userId, createdAt])
   @@index([listingId])
+}
+
+model ContactRequest {
+  id                     String        @id @default(auto()) @map("_id") @db.ObjectId
+  listingId              String        @db.ObjectId
+  listing                Listing       @relation(fields: [listingId], references: [id])
+  requesterId            String        @db.ObjectId
+  requester              User          @relation("ContactRequestRequester", fields: [requesterId], references: [id])
+  ownerId                String        @db.ObjectId
+  owner                  User          @relation("ContactRequestOwner", fields: [ownerId], references: [id])
+  message                String
+  preferredContactMethod ContactMethod @default(ANY)
+  contactEmail           String?
+  contactPhone           String?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  @@index([listingId, createdAt])
+  @@index([requesterId, createdAt])
+  @@index([ownerId, createdAt])
 }
 
 model Review {

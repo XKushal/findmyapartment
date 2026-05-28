@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   DEV_LISTINGS,
+  DEV_CONTACT_REQUESTS,
   DEV_REVIEWS,
   DEV_SAVED_LISTINGS,
   DEV_USERS,
@@ -22,6 +23,9 @@ function createPrismaMock() {
     savedListing: {
       upsert: vi.fn(),
     },
+    contactRequest: {
+      upsert: vi.fn(),
+    },
   };
 }
 
@@ -35,6 +39,7 @@ describe("dev seed data", () => {
     expect(DEV_LISTINGS.length).toBeGreaterThanOrEqual(4);
     expect(DEV_REVIEWS.length).toBeGreaterThanOrEqual(4);
     expect(DEV_SAVED_LISTINGS.length).toBeGreaterThanOrEqual(2);
+    expect(DEV_CONTACT_REQUESTS.length).toBeGreaterThanOrEqual(2);
     expect(roommateListing).toEqual(
       expect.objectContaining({
         roommateCount: 1,
@@ -60,6 +65,9 @@ describe("dev seed data", () => {
     expect(prisma.review.upsert).toHaveBeenCalledTimes(DEV_REVIEWS.length);
     expect(prisma.savedListing.upsert).toHaveBeenCalledTimes(
       DEV_SAVED_LISTINGS.length,
+    );
+    expect(prisma.contactRequest.upsert).toHaveBeenCalledTimes(
+      DEV_CONTACT_REQUESTS.length,
     );
     expect(hashPassword).toHaveBeenCalledTimes(DEV_USERS.length);
 
@@ -147,6 +155,31 @@ describe("dev seed data", () => {
           listing: {
             connect: {
               id: DEV_SAVED_LISTINGS[0].listingId,
+            },
+          },
+        }),
+      }),
+    );
+
+    expect(prisma.contactRequest.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: DEV_CONTACT_REQUESTS[0].id },
+        create: expect.objectContaining({
+          id: DEV_CONTACT_REQUESTS[0].id,
+          message: DEV_CONTACT_REQUESTS[0].message,
+          listing: {
+            connect: {
+              id: DEV_CONTACT_REQUESTS[0].listingId,
+            },
+          },
+          requester: {
+            connect: {
+              id: DEV_CONTACT_REQUESTS[0].requesterId,
+            },
+          },
+          owner: {
+            connect: {
+              id: DEV_CONTACT_REQUESTS[0].ownerId,
             },
           },
         }),

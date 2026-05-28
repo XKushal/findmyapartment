@@ -2,6 +2,15 @@ import type { Listing } from "@prisma/client";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import {
+  ContactRequestsReceivedList,
+  ContactRequestsSentList,
+} from "@/features/contact-requests/components/contact-request-lists";
+import {
+  getReceivedContactRequestsByOwner,
+  getSentContactRequestsByRequester,
+} from "@/features/contact-requests/queries";
+import { serializeContactRequest } from "@/features/contact-requests/schemas";
 import { ListingArchiveButton } from "@/features/listings/components/listing-archive-button";
 import { ListingCard } from "@/features/listings/components/listing-card";
 import { getListingsByOwner } from "@/features/listings/queries";
@@ -70,10 +79,18 @@ export default async function ProfilePage() {
     redirect("/login?callbackUrl=%2Fprofile");
   }
 
-  const [profileUser, listings, savedListings] = await Promise.all([
+  const [
+    profileUser,
+    listings,
+    savedListings,
+    receivedContactRequests,
+    sentContactRequests,
+  ] = await Promise.all([
     getProfileUser(session.user.id),
     getListingsByOwner(session.user.id),
     getSavedListingsByUser(session.user.id),
+    getReceivedContactRequestsByOwner(session.user.id),
+    getSentContactRequestsByRequester(session.user.id),
   ]);
   const displayName = profileUser?.name ?? session.user.name ?? "Renter";
   const email = profileUser?.email ?? session.user.email;
@@ -155,6 +172,14 @@ export default async function ProfilePage() {
           </div>
         )}
       </section>
+
+      <ContactRequestsReceivedList
+        contactRequests={receivedContactRequests.map(serializeContactRequest)}
+      />
+
+      <ContactRequestsSentList
+        contactRequests={sentContactRequests.map(serializeContactRequest)}
+      />
 
       <section className="mt-8">
         <div className="flex flex-wrap items-end justify-between gap-3">

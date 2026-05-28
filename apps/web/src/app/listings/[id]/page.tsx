@@ -1,6 +1,8 @@
 import { getListingById } from "@/features/listings/queries";
 import { ListingArchiveButton } from "@/features/listings/components/listing-archive-button";
 import { ListingImageGallery } from "@/features/listings/components/listing-image-gallery";
+import { ContactRequestForm } from "@/features/contact-requests/components/contact-request-form";
+import { getProfileUser } from "@/features/profile/queries";
 import { ReviewSection } from "@/features/reviews/components/review-section";
 import { getReviewsForListing } from "@/features/reviews/mutations";
 import { serializeReview } from "@/features/reviews/schemas";
@@ -34,6 +36,9 @@ export default async function ListingDetailPage({
   const savedListingIds = session?.user?.id
     ? await getSavedListingIdsByUser(session.user.id)
     : [];
+  const profileUser = session?.user?.id && !isOwner
+    ? await getProfileUser(session.user.id)
+    : null;
   const isSaved = savedListingIds.includes(listing.id);
   const hasContactInfo = Boolean(listing.contactEmail || listing.contactPhone);
   const roommateDetails =
@@ -162,6 +167,16 @@ export default async function ListingDetailPage({
             ) : null}
           </div>
         </section>
+      ) : null}
+
+      {!isOwner && session?.user?.id ? (
+        <ContactRequestForm
+          listingId={listing.id}
+          defaultContactEmail={
+            profileUser?.contactEmail ?? session.user.email ?? null
+          }
+          defaultContactPhone={profileUser?.contactPhone ?? null}
+        />
       ) : null}
 
       {listing.amenities.length > 0 ? (

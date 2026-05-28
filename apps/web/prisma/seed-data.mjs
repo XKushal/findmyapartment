@@ -170,6 +170,29 @@ export const DEV_SAVED_LISTINGS = [
   },
 ];
 
+export const DEV_CONTACT_REQUESTS = [
+  {
+    id: "66a000000000000000000501",
+    listingId: DEV_LISTINGS[0].id,
+    requesterId: DEV_USERS[2].id,
+    ownerId: DEV_USERS[0].id,
+    message: "I am interested in touring the studio this week.",
+    preferredContactMethod: "EMAIL",
+    contactEmail: DEV_USERS[2].contactEmail,
+    contactPhone: DEV_USERS[2].contactPhone,
+  },
+  {
+    id: "66a000000000000000000502",
+    listingId: DEV_LISTINGS[3].id,
+    requesterId: DEV_USERS[2].id,
+    ownerId: DEV_USERS[1].id,
+    message: "The roommate expectations look like a good fit for fall.",
+    preferredContactMethod: "ANY",
+    contactEmail: DEV_USERS[2].contactEmail,
+    contactPhone: DEV_USERS[2].contactPhone,
+  },
+];
+
 function userWriteData(user, passwordHash) {
   return {
     email: user.email,
@@ -246,6 +269,30 @@ function savedListingWriteData(savedListing) {
   };
 }
 
+function contactRequestWriteData(contactRequest) {
+  return {
+    message: contactRequest.message,
+    preferredContactMethod: contactRequest.preferredContactMethod,
+    contactEmail: contactRequest.contactEmail,
+    contactPhone: contactRequest.contactPhone,
+    listing: {
+      connect: {
+        id: contactRequest.listingId,
+      },
+    },
+    requester: {
+      connect: {
+        id: contactRequest.requesterId,
+      },
+    },
+    owner: {
+      connect: {
+        id: contactRequest.ownerId,
+      },
+    },
+  };
+}
+
 export async function seedDevData({ prisma, hashPassword }) {
   for (const user of DEV_USERS) {
     const passwordHash = await hashPassword(DEV_PASSWORD);
@@ -308,10 +355,26 @@ export async function seedDevData({ prisma, hashPassword }) {
     });
   }
 
+  for (const contactRequest of DEV_CONTACT_REQUESTS) {
+    const writeData = contactRequestWriteData(contactRequest);
+
+    await prisma.contactRequest.upsert({
+      where: {
+        id: contactRequest.id,
+      },
+      create: {
+        id: contactRequest.id,
+        ...writeData,
+      },
+      update: writeData,
+    });
+  }
+
   return {
     users: DEV_USERS.length,
     listings: DEV_LISTINGS.length,
     reviews: DEV_REVIEWS.length,
     savedListings: DEV_SAVED_LISTINGS.length,
+    contactRequests: DEV_CONTACT_REQUESTS.length,
   };
 }

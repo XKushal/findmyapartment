@@ -10,6 +10,10 @@ import {
   registerResponseSchema,
 } from "@/features/auth/schemas";
 import {
+  contactRequestCreateBodySchema,
+  contactRequestDetailResponseSchema,
+} from "@/features/contact-requests/schemas";
+import {
   listingCreateBodySchema,
   listingDetailResponseSchema,
   listingParamsSchema,
@@ -75,6 +79,11 @@ export function createOpenApiDocument() {
   registry.register("ReviewsResponse", reviewsResponseSchema);
   registry.register("ReviewDetailResponse", reviewDetailResponseSchema);
   registry.register("SavedListingResponse", savedListingResponseSchema);
+  registry.register("ContactRequestCreateBody", contactRequestCreateBodySchema);
+  registry.register(
+    "ContactRequestDetailResponse",
+    contactRequestDetailResponseSchema,
+  );
 
   registry.registerPath({
     method: "post",
@@ -191,6 +200,32 @@ export function createOpenApiDocument() {
     responses: {
       200: jsonContent(reviewsResponseSchema, "Listing reviews response."),
       400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
+
+  registry.registerPath({
+    method: "post",
+    path: "/api/listings/{id}/contact-requests",
+    summary: "Create listing contact request",
+    description:
+      "Creates a structured inquiry for a signed-in renter on a listing they do not own.",
+    request: {
+      params: listingParamsSchema,
+      body: jsonRequestBody(
+        contactRequestCreateBodySchema,
+        "Contact request create payload.",
+      ),
+    },
+    responses: {
+      201: jsonContent(
+        contactRequestDetailResponseSchema,
+        "Created contact request response.",
+      ),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
+      403: jsonContent(apiErrorResponseSchema, "Forbidden owner-check response."),
+      404: jsonContent(apiErrorResponseSchema, "Listing not found response."),
       500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
     },
   });
