@@ -116,6 +116,13 @@ export const DEV_LISTINGS = [
     petPolicy: "UNKNOWN",
     amenities: ["Bus route", "Utilities included"],
     imageUrls: [],
+    roommateCount: 1,
+    preferredGender: "No preference",
+    lifestyle: "Quiet weeknights, friendly shared meals",
+    cleanliness: "Shared chores weekly",
+    smokingPolicy: "No smoking",
+    roommatePreferences:
+      "Student or recent graduate comfortable with a shared lease.",
   },
 ];
 
@@ -193,6 +200,12 @@ function listingWriteData(listing) {
     petPolicy: listing.petPolicy,
     amenities: listing.amenities,
     imageUrls: listing.imageUrls,
+    roommateCount: listing.roommateCount ?? null,
+    preferredGender: listing.preferredGender ?? null,
+    lifestyle: listing.lifestyle ?? null,
+    cleanliness: listing.cleanliness ?? null,
+    smokingPolicy: listing.smokingPolicy ?? null,
+    roommatePreferences: listing.roommatePreferences ?? null,
     owner: {
       connect: {
         id: listing.ownerId,

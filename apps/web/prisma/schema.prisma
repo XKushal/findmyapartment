@@ -44,31 +44,37 @@ model User {
 }
 
 model Listing {
-  id                String         @id @default(auto()) @map("_id") @db.ObjectId
-  title             String
-  type              ListingType
-  status            ListingStatus  @default(ACTIVE)
-  description       String
-  rent              Int
-  deposit           Int?
-  utilitiesIncluded Boolean        @default(false)
-  availableFrom     DateTime?
-  leaseDuration     String?
-  address           String?
-  distanceToCampus  String?
-  contactEmail      String?
-  contactPhone      String?
-  bedrooms          Int?
-  bathrooms         Float?
-  petPolicy         PetPolicy      @default(UNKNOWN)
-  amenities         String[]
-  imageUrls         String[]
-  ownerId           String?        @db.ObjectId
-  owner             User?          @relation(fields: [ownerId], references: [id])
-  reviews           Review[]
-  savedBy           SavedListing[]
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  id                  String         @id @default(auto()) @map("_id") @db.ObjectId
+  title               String
+  type                ListingType
+  status              ListingStatus  @default(ACTIVE)
+  description         String
+  rent                Int
+  deposit             Int?
+  utilitiesIncluded   Boolean        @default(false)
+  availableFrom       DateTime?
+  leaseDuration       String?
+  address             String?
+  distanceToCampus    String?
+  contactEmail        String?
+  contactPhone        String?
+  bedrooms            Int?
+  bathrooms           Float?
+  petPolicy           PetPolicy      @default(UNKNOWN)
+  amenities           String[]
+  imageUrls           String[]
+  roommateCount       Int?
+  preferredGender     String?
+  lifestyle           String?
+  cleanliness         String?
+  smokingPolicy       String?
+  roommatePreferences String?
+  ownerId             String?        @db.ObjectId
+  owner               User?          @relation(fields: [ownerId], references: [id])
+  reviews             Review[]
+  savedBy             SavedListing[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
   @@index([status])
   @@index([type])

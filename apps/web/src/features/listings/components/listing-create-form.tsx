@@ -37,6 +37,12 @@ type ListingFormValue = {
   petPolicy: ListingCreateInput["petPolicy"];
   amenities: string[];
   imageUrls: string[];
+  roommateCount?: number | null;
+  preferredGender?: string | null;
+  lifestyle?: string | null;
+  cleanliness?: string | null;
+  smokingPolicy?: string | null;
+  roommatePreferences?: string | null;
 };
 
 type ListingCreateFormProps = {
@@ -65,6 +71,132 @@ function readFileAsDataUrl(file: File) {
   });
 }
 
+type RoommateFitFieldsProps = {
+  listing?: Pick<
+    ListingFormValue,
+    | "roommateCount"
+    | "preferredGender"
+    | "lifestyle"
+    | "cleanliness"
+    | "smokingPolicy"
+    | "roommatePreferences"
+  >;
+};
+
+export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
+  return (
+    <section className="grid gap-4 rounded-md border border-zinc-200 p-4">
+      <div>
+        <h2 className="text-sm font-semibold text-zinc-950">Roommate fit</h2>
+        <p className="mt-1 text-sm text-zinc-600">
+          Share compatibility details for people comparing roommate leads.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <label
+            htmlFor="roommateCount"
+            className="text-sm font-medium text-zinc-800"
+          >
+            Roommates needed
+          </label>
+          <input
+            id="roommateCount"
+            name="roommateCount"
+            min="1"
+            step="1"
+            type="number"
+            defaultValue={listing?.roommateCount ?? ""}
+            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            placeholder="1"
+          />
+        </div>
+
+        <div className="grid gap-2">
+          <label
+            htmlFor="preferredGender"
+            className="text-sm font-medium text-zinc-800"
+          >
+            Preferred gender
+          </label>
+          <input
+            id="preferredGender"
+            name="preferredGender"
+            defaultValue={listing?.preferredGender ?? ""}
+            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            placeholder="No preference"
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <label htmlFor="lifestyle" className="text-sm font-medium text-zinc-800">
+            Lifestyle
+          </label>
+          <input
+            id="lifestyle"
+            name="lifestyle"
+            defaultValue={listing?.lifestyle ?? ""}
+            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            placeholder="Quiet weekdays, social weekends"
+          />
+        </div>
+
+        <div className="grid gap-2">
+          <label
+            htmlFor="cleanliness"
+            className="text-sm font-medium text-zinc-800"
+          >
+            Cleanliness
+          </label>
+          <input
+            id="cleanliness"
+            name="cleanliness"
+            defaultValue={listing?.cleanliness ?? ""}
+            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            placeholder="Shared chores weekly"
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-2">
+        <label
+          htmlFor="smokingPolicy"
+          className="text-sm font-medium text-zinc-800"
+        >
+          Smoking policy
+        </label>
+        <input
+          id="smokingPolicy"
+          name="smokingPolicy"
+          defaultValue={listing?.smokingPolicy ?? ""}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          placeholder="No smoking"
+        />
+      </div>
+
+      <div className="grid gap-2">
+        <label
+          htmlFor="roommatePreferences"
+          className="text-sm font-medium text-zinc-800"
+        >
+          Roommate preferences
+        </label>
+        <textarea
+          id="roommatePreferences"
+          name="roommatePreferences"
+          rows={3}
+          defaultValue={listing?.roommatePreferences ?? ""}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          placeholder="Graduate students preferred"
+        />
+      </div>
+    </section>
+  );
+}
+
 export function ListingCreateForm({
   listing,
   mode = "create",
@@ -77,7 +209,11 @@ export function ListingCreateForm({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedType, setSelectedType] = useState<ListingCreateInput["type"]>(
+    listing?.type ?? "APARTMENT",
+  );
   const isEditMode = mode === "edit";
+  const isRoommateListing = selectedType === "ROOMMATE";
 
   async function addFiles(files: FileList | File[]) {
     setError(null);
@@ -201,6 +337,9 @@ export function ListingCreateForm({
             name="type"
             required
             defaultValue={listing?.type ?? "APARTMENT"}
+            onChange={(event) =>
+              setSelectedType(event.target.value as ListingCreateInput["type"])
+            }
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
           >
             <option value="APARTMENT">Apartment</option>
@@ -418,6 +557,10 @@ export function ListingCreateForm({
         />
         Utilities included
       </label>
+
+      {isRoommateListing ? (
+        <RoommateFitFields listing={listing} />
+      ) : null}
 
       <div className="grid gap-2">
         <label htmlFor="amenities" className="text-sm font-medium text-zinc-800">

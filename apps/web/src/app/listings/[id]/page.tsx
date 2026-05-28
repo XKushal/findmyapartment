@@ -36,6 +36,20 @@ export default async function ListingDetailPage({
     : [];
   const isSaved = savedListingIds.includes(listing.id);
   const hasContactInfo = Boolean(listing.contactEmail || listing.contactPhone);
+  const roommateDetails =
+    listing.type === "ROOMMATE"
+      ? [
+          [
+            "Roommates needed",
+            listing.roommateCount === null ? null : String(listing.roommateCount),
+          ],
+          ["Preferred gender", listing.preferredGender],
+          ["Lifestyle", listing.lifestyle],
+          ["Cleanliness", listing.cleanliness],
+          ["Smoking policy", listing.smokingPolicy],
+          ["Preferences", listing.roommatePreferences],
+        ].filter((detail): detail is [string, string] => Boolean(detail[1]))
+      : [];
   const details = [
     ["Deposit", listing.deposit === null ? "Not listed" : `$${listing.deposit}`],
     ["Utilities", listing.utilitiesIncluded ? "Included" : "Not included"],
@@ -106,6 +120,20 @@ export default async function ListingDetailPage({
           <p className="text-sm text-zinc-500">Address</p>
           <p className="mt-1 font-medium text-zinc-950">{listing.address}</p>
         </div>
+      ) : null}
+
+      {roommateDetails.length > 0 ? (
+        <section className="mt-8 border-t border-zinc-200 pt-6">
+          <h2 className="text-lg font-semibold text-zinc-950">Roommate fit</h2>
+          <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+            {roommateDetails.map(([label, value]) => (
+              <div key={label}>
+                <dt className="text-sm text-zinc-500">{label}</dt>
+                <dd className="mt-1 font-medium text-zinc-950">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       ) : null}
 
       {!isOwner && hasContactInfo ? (

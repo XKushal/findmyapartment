@@ -27,10 +27,21 @@ function createPrismaMock() {
 
 describe("dev seed data", () => {
   it("defines multiple local accounts, listings, and reviews", () => {
+    const roommateListing = DEV_LISTINGS.find(
+      (listing) => listing.type === "ROOMMATE",
+    );
+
     expect(DEV_USERS).toHaveLength(3);
     expect(DEV_LISTINGS.length).toBeGreaterThanOrEqual(4);
     expect(DEV_REVIEWS.length).toBeGreaterThanOrEqual(4);
     expect(DEV_SAVED_LISTINGS.length).toBeGreaterThanOrEqual(2);
+    expect(roommateListing).toEqual(
+      expect.objectContaining({
+        roommateCount: 1,
+        lifestyle: expect.any(String),
+        roommatePreferences: expect.any(String),
+      }),
+    );
     expect(DEV_USERS.map((user) => user.email)).toEqual([
       "owner.one@example.com",
       "owner.two@example.com",
@@ -84,6 +95,22 @@ describe("dev seed data", () => {
               id: DEV_LISTINGS[0].ownerId,
             },
           },
+        }),
+      }),
+    );
+
+    expect(prisma.listing.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: DEV_LISTINGS[3].id },
+        create: expect.objectContaining({
+          roommateCount: 1,
+          lifestyle: expect.any(String),
+          roommatePreferences: expect.any(String),
+        }),
+        update: expect.objectContaining({
+          roommateCount: 1,
+          lifestyle: expect.any(String),
+          roommatePreferences: expect.any(String),
         }),
       }),
     );
