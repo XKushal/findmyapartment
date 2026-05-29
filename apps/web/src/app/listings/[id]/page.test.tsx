@@ -145,6 +145,40 @@ function hasContactRequestForm(
   );
 }
 
+function reviewSectionIsOwner(
+  node: unknown,
+  seen = new WeakSet<object>(),
+): boolean {
+  if (Array.isArray(node)) {
+    return node.some((child) => reviewSectionIsOwner(child, seen));
+  }
+
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+
+  const element = node as {
+    props?: {
+      listingId?: unknown;
+      isOwner?: unknown;
+      children?: unknown;
+    };
+  };
+
+  if (element.props?.listingId === listing.id) {
+    return element.props.isOwner === true;
+  }
+
+  return Object.values(element.props ?? {}).some((value) =>
+    reviewSectionIsOwner(value, seen),
+  );
+}
+
 describe("ListingDetailPage", () => {
   beforeEach(() => {
     vi.mocked(getSavedListingIdsByUser).mockReset();
@@ -168,6 +202,7 @@ describe("ListingDetailPage", () => {
     });
 
     expect(hasHref(page, `/listings/${listing.id}/edit`)).toBe(true);
+    expect(reviewSectionIsOwner(page)).toBe(true);
   });
 
   it("loads and renders reviews for the listing", async () => {

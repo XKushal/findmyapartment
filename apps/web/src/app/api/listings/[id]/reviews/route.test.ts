@@ -5,7 +5,7 @@ import {
   createReview,
   getReviewsForListing,
 } from "@/features/reviews/mutations";
-import { authRequired } from "@/server/api/errors";
+import { authRequired, forbidden } from "@/server/api/errors";
 import { requireCurrentUser } from "@/server/auth/current-user";
 
 vi.mock("@/features/reviews/mutations", () => ({
@@ -138,5 +138,30 @@ describe("listing review APIs", () => {
       },
     });
     expect(createReview).not.toHaveBeenCalled();
+  });
+
+  it("returns FORBIDDEN when an owner reviews their own listing", async () => {
+    vi.mocked(createReview).mockRejectedValue(
+      forbidden("Listing owners cannot review their own listings."),
+    );
+
+    const response = await POST(
+      new Request(`http://localhost:3000/api/listings/${review.listingId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({
+          body: review.body,
+          rating: review.rating,
+        }),
+      }),
+      { params: Promise.resolve({ id: review.listingId }) },
+    );
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({
+      error: {
+        code: "FORBIDDEN",
+        message: "Listing owners cannot review their own listings.",
+      },
+    });
   });
 });

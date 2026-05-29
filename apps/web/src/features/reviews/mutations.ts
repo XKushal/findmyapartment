@@ -44,6 +44,20 @@ export async function createReview(
     return null;
   }
 
+  const listing = await prisma.listing.findUnique({
+    where: {
+      id: listingId,
+    },
+    select: {
+      id: true,
+      ownerId: true,
+    },
+  });
+
+  if (listing?.ownerId === authorId) {
+    throw forbidden("Listing owners cannot review their own listings.");
+  }
+
   return prisma.review.create({
     data: {
       body: input.body,
