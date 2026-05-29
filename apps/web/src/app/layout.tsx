@@ -5,11 +5,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "AllApartments — apartments, rooms & roommates",
-    template: "%s · AllApartments",
+    default: "RentNest — apartments, rooms & roommates",
+    template: "%s · RentNest",
   },
   description:
-    "Find apartments, rooms, and roommate leads near campus. A warm, local-first rental board.",
+    "Find apartments, rooms, and roommates anywhere. A warm, simple rental board for renters and posters alike.",
 };
 
 export default function RootLayout({

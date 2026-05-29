@@ -49,7 +49,7 @@ describe("LoginPage", () => {
       searchParams: Promise.resolve({ callbackUrl: "/profile" }),
     });
 
-    expect(includesText(page, "Sign in to AllApartments")).toBe(true);
+    expect(includesText(page, "Sign in to RentNest")).toBe(true);
     const form = (page.props.children as unknown[]).at(-1) as {
       props: { callbackUrl?: string };
     };

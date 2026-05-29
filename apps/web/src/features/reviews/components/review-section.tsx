@@ -27,7 +27,7 @@ async function readErrorMessage(response: Response, fallback: string) {
 }
 
 function reviewAuthor(review: ReviewApiResponse) {
-  return review.authorName ?? "AllApartments user";
+  return review.authorName ?? "RentNest user";
 }
 
 export function averageReviewRating(reviews: ReviewApiResponse[]) {

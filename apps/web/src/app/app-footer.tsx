@@ -21,7 +21,7 @@ export function AppFooter() {
                 <HomeMarkIcon width={18} height={18} />
               </span>
               <span className="font-display text-base font-semibold text-stone-950">
-                AllApartments
+                RentNest
               </span>
             </div>
             <p className="mt-3 text-sm leading-6 text-stone-600">
@@ -43,7 +43,7 @@ export function AppFooter() {
           </nav>
         </div>
         <div className="border-t border-stone-200/70 py-6 text-xs text-stone-500">
-          © {new Date().getFullYear()} AllApartments. Find apartments, rooms,
+          © {new Date().getFullYear()} RentNest. Find apartments, rooms,
           and roommates.
         </div>
       </Container>

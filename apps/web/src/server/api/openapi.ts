@@ -348,7 +348,7 @@ export function createOpenApiDocument() {
   return generator.generateDocument({
     openapi: "3.0.0",
     info: {
-      title: "AllApartments API",
+      title: "RentNest API",
       version: "0.1.0",
       description: "Schema-driven API documentation for the StCloudAptss migration.",
     },

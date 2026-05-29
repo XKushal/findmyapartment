@@ -160,7 +160,7 @@ export default async function ProfilePage() {
             </h3>
             <p className="mx-auto mt-2 max-w-md text-sm text-stone-600">
               Post your first apartment, room, or roommate lead so renters can
-              find it near campus.
+              find it.
             </p>
             <Link
               href="/listings/new"

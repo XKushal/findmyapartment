@@ -59,7 +59,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
           <div>
             <Eyebrow>Browse</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              Listings near campus
+Browse listings
             </h1>
             <p className="mt-2 text-stone-600">{resultLabel}</p>
           </div>
