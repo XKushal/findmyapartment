@@ -22,6 +22,77 @@ type RegisterFormProps = {
   callbackUrl: string;
 };
 
+type SignInFn = typeof signIn;
+
+type SubmitRegistrationOptions = {
+  callbackUrl: string;
+  email: FormDataEntryValue | null;
+  fetcher?: typeof fetch;
+  name: FormDataEntryValue | null;
+  password: FormDataEntryValue | null;
+  signInFn?: SignInFn;
+};
+
+type SubmitRegistrationResult =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export async function submitRegistration({
+  callbackUrl,
+  email,
+  fetcher = fetch,
+  name,
+  password,
+  signInFn = signIn,
+}: SubmitRegistrationOptions): Promise<SubmitRegistrationResult> {
+  try {
+    const response = await fetcher("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: await readErrorMessage(response),
+      };
+    }
+
+    const result = await signInFn("credentials", {
+      email,
+      password,
+      redirect: false,
+      callbackUrl,
+    });
+
+    if (result?.error) {
+      return {
+        ok: false,
+        error: "Account created, but sign-in failed. Please sign in manually.",
+      };
+    }
+
+    return { ok: true };
+  } catch {
+    return {
+      ok: false,
+      error: "Could not create your account. Please try again.",
+    };
+  }
+}
+
 export function RegisterForm({ callbackUrl }: RegisterFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -35,40 +106,18 @@ export function RegisterForm({ callbackUrl }: RegisterFormProps) {
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
-    const email = formData.get("email");
-    const password = formData.get("password");
-
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        email,
-        password,
-      }),
-    });
-
-    if (!response.ok) {
-      setNotice(null);
-      setError(await readErrorMessage(response));
-      setIsSubmitting(false);
-      return;
-    }
-
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
+    const result = await submitRegistration({
       callbackUrl,
+      email: formData.get("email"),
+      name: formData.get("name"),
+      password: formData.get("password"),
     });
 
     setIsSubmitting(false);
 
-    if (result?.error) {
+    if (!result.ok) {
       setNotice(null);
-      setError("Account created, but sign-in failed. Please sign in manually.");
+      setError(result.error);
       return;
     }
 
@@ -98,6 +147,7 @@ export function RegisterForm({ callbackUrl }: RegisterFormProps) {
           required
           minLength={2}
           autoComplete="name"
+          disabled={isSubmitting}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
         />
       </div>
@@ -112,6 +162,7 @@ export function RegisterForm({ callbackUrl }: RegisterFormProps) {
           type="email"
           required
           autoComplete="email"
+          disabled={isSubmitting}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
         />
       </div>
@@ -127,6 +178,7 @@ export function RegisterForm({ callbackUrl }: RegisterFormProps) {
           required
           minLength={8}
           autoComplete="new-password"
+          disabled={isSubmitting}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
         />
       </div>

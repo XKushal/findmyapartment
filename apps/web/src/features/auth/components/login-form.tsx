@@ -11,6 +11,54 @@ type LoginFormProps = {
   callbackUrl: string;
 };
 
+type SignInFn = typeof signIn;
+
+type SubmitLoginOptions = {
+  callbackUrl: string;
+  email: FormDataEntryValue | null;
+  password: FormDataEntryValue | null;
+  signInFn?: SignInFn;
+};
+
+type SubmitLoginResult =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export async function submitLogin({
+  callbackUrl,
+  email,
+  password,
+  signInFn = signIn,
+}: SubmitLoginOptions): Promise<SubmitLoginResult> {
+  try {
+    const result = await signInFn("credentials", {
+      email,
+      password,
+      redirect: false,
+      callbackUrl,
+    });
+
+    if (result?.error) {
+      return {
+        ok: false,
+        error: "Email or password is incorrect.",
+      };
+    }
+
+    return { ok: true };
+  } catch {
+    return {
+      ok: false,
+      error: "Could not sign in. Please try again.",
+    };
+  }
+}
+
 export function LoginForm({ callbackUrl }: LoginFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -24,18 +72,17 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
-    const result = await signIn("credentials", {
+    const result = await submitLogin({
+      callbackUrl,
       email: formData.get("email"),
       password: formData.get("password"),
-      redirect: false,
-      callbackUrl,
     });
 
     setIsSubmitting(false);
 
-    if (result?.error) {
+    if (!result.ok) {
       setNotice(null);
-      setError("Email or password is incorrect.");
+      setError(result.error);
       return;
     }
 
@@ -65,6 +112,7 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
           type="email"
           required
           autoComplete="email"
+          disabled={isSubmitting}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
         />
       </div>
@@ -79,6 +127,7 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
           type="password"
           required
           autoComplete="current-password"
+          disabled={isSubmitting}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
         />
       </div>

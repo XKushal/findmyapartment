@@ -140,17 +140,55 @@ describe("listing API schemas", () => {
     expect(parsed.success).toBe(false);
   });
 
-  it("accepts uploaded image data urls for listing writes", () => {
+  it("accepts hosted image URLs and supported data URLs for listing writes", () => {
     const parsed = listingCreateBodySchema.safeParse({
       title: "Sunny room",
       type: "ROOM",
       description: "Private room near campus.",
       rent: 850,
       petPolicy: "PETS_ALLOWED",
-      imageUrls: ["data:image/png;base64,abc123"],
+      imageUrls: [
+        "https://example.com/listing-photo.jpg",
+        "data:image/jpeg;base64,abc123",
+        "data:image/png;base64,def456",
+        "data:image/webp;base64,ghi789",
+      ],
     });
 
     expect(parsed.success).toBe(true);
+  });
+
+  it("rejects unsupported data URL image types for listing writes", () => {
+    const parsed = listingCreateBodySchema.safeParse({
+      title: "Sunny room",
+      type: "ROOM",
+      description: "Private room near campus.",
+      rent: 850,
+      petPolicy: "PETS_ALLOWED",
+      imageUrls: ["data:image/gif;base64,abc123"],
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
+  it("rejects more than five images for listing writes", () => {
+    const parsed = listingCreateBodySchema.safeParse({
+      title: "Sunny room",
+      type: "ROOM",
+      description: "Private room near campus.",
+      rent: 850,
+      petPolicy: "PETS_ALLOWED",
+      imageUrls: [
+        "data:image/png;base64,one",
+        "data:image/png;base64,two",
+        "data:image/png;base64,three",
+        "data:image/png;base64,four",
+        "data:image/png;base64,five",
+        "data:image/png;base64,six",
+      ],
+    });
+
+    expect(parsed.success).toBe(false);
   });
 
   it("accepts optional contact fields for listing writes", () => {
