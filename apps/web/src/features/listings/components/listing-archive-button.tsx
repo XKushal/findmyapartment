@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { buttonVariants } from "@/features/ui/button";
 import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ListingArchiveButtonProps = {
@@ -52,7 +53,7 @@ export function ListingArchiveButton({ listingId }: ListingArchiveButtonProps) {
         type="button"
         onClick={archiveListing}
         disabled={isArchiving}
-        className="rounded-md border border-red-200 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:text-red-300"
+        className={buttonVariants({ variant: "danger", className: "w-full" })}
       >
         {isArchiving ? "Archiving..." : "Archive"}
       </button>

@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import type { ProfileUser } from "@/features/profile/queries";
+import { buttonVariants } from "@/features/ui/button";
+import { fieldInput, fieldLabel } from "@/features/ui/field";
 import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ApiErrorBody = {
@@ -68,7 +70,7 @@ export function ProfileAccountForm({ user }: { user: ProfileUser }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-4 grid gap-4 rounded-md border border-zinc-200 p-4"
+      className="mt-4 grid gap-4 rounded-2xl border border-stone-200/80 bg-surface p-6 shadow-[var(--shadow-soft)]"
     >
       {error ? (
         <FormFeedback tone="error">{error}</FormFeedback>
@@ -84,7 +86,7 @@ export function ProfileAccountForm({ user }: { user: ProfileUser }) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="justify-self-start rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+        className={buttonVariants({ className: "justify-self-start" })}
       >
         {isSubmitting ? "Saving..." : "Save profile"}
       </button>
@@ -96,7 +98,7 @@ export function ProfileAccountFields({ user }: { user: ProfileUser }) {
   return (
     <>
       <div className="grid gap-2">
-        <label htmlFor="name" className="text-sm font-medium text-zinc-800">
+        <label htmlFor="name" className={fieldLabel()}>
           Display name
         </label>
         <input
@@ -104,7 +106,7 @@ export function ProfileAccountFields({ user }: { user: ProfileUser }) {
           name="name"
           required
           defaultValue={user.name ?? ""}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldInput()}
           placeholder="Kushal Singh"
         />
       </div>
@@ -113,7 +115,7 @@ export function ProfileAccountFields({ user }: { user: ProfileUser }) {
         <div className="grid gap-2">
           <label
             htmlFor="contactEmail"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Default contact email
           </label>
@@ -122,7 +124,7 @@ export function ProfileAccountFields({ user }: { user: ProfileUser }) {
             name="contactEmail"
             type="email"
             defaultValue={user.contactEmail ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder={user.email}
           />
         </div>
@@ -130,7 +132,7 @@ export function ProfileAccountFields({ user }: { user: ProfileUser }) {
         <div className="grid gap-2">
           <label
             htmlFor="contactPhone"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Default contact phone
           </label>
@@ -139,7 +141,7 @@ export function ProfileAccountFields({ user }: { user: ProfileUser }) {
             name="contactPhone"
             type="tel"
             defaultValue={user.contactPhone ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="320-555-1212"
           />
         </div>

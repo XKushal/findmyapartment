@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 
 import type { ReviewApiResponse } from "@/features/reviews/schemas";
+import { buttonVariants } from "@/features/ui/button";
+import { fieldInput, fieldLabel } from "@/features/ui/field";
 import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ReviewSectionProps = {
@@ -88,19 +90,19 @@ export function ReviewSectionView({
   const ratingCount = ratedReviewCount(reviews);
 
   return (
-    <section className="mt-10 border-t border-zinc-200 pt-8">
+    <section className="mt-10 border-t border-stone-200 pt-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold text-zinc-950">
+          <h2 className="text-2xl font-semibold text-stone-950">
             Reviews and comments
           </h2>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="mt-1 text-sm text-stone-600">
             {reviews.length === 0
               ? "No reviews yet."
               : `${reviews.length} review${reviews.length === 1 ? "" : "s"}`}
           </p>
           {averageRating ? (
-            <p className="mt-1 text-sm font-medium text-emerald-700">
+            <p className="mt-1 text-sm font-medium text-brand-700">
               {`${averageRating} average from ${ratingCount} rating${
                 ratingCount === 1 ? "" : "s"
               }`}
@@ -123,12 +125,12 @@ export function ReviewSectionView({
       ) : null}
 
       {isOwner ? (
-        <p className="mt-5 rounded-md border border-zinc-200 px-4 py-3 text-sm text-zinc-700">
+        <p className="mt-5 rounded-md border border-stone-200 px-4 py-3 text-sm text-stone-700">
           Owners cannot review their own listings.
         </p>
       ) : isSignedIn ? (
         <form onSubmit={onCreateReview} className="mt-5 grid gap-3">
-          <label htmlFor="review-body" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="review-body" className={fieldLabel()}>
             Add a comment
           </label>
           <textarea
@@ -137,12 +139,12 @@ export function ReviewSectionView({
             required
             rows={4}
             disabled={isSubmitting}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950 disabled:bg-zinc-100"
+            className={fieldInput()}
             placeholder="Share what future renters should know."
           />
           <div className="flex flex-wrap items-end gap-3">
             <div className="grid gap-2">
-              <label htmlFor="review-rating" className="text-sm font-medium text-zinc-800">
+              <label htmlFor="review-rating" className={fieldLabel()}>
                 Rating
               </label>
               <select
@@ -150,7 +152,7 @@ export function ReviewSectionView({
                 name="rating"
                 defaultValue=""
                 disabled={isSubmitting}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950 disabled:bg-zinc-100"
+                className={fieldInput()}
               >
                 <option value="">No rating</option>
                 <option value="5">5</option>
@@ -163,14 +165,14 @@ export function ReviewSectionView({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+              className={buttonVariants({ size: "sm" })}
             >
               {isSubmitting ? "Posting..." : "Post review"}
             </button>
           </div>
         </form>
       ) : (
-        <p className="mt-5 rounded-md border border-zinc-200 px-4 py-3 text-sm text-zinc-700">
+        <p className="mt-5 rounded-md border border-stone-200 px-4 py-3 text-sm text-stone-700">
           Sign in to add a comment or rating.
         </p>
       )}
@@ -181,7 +183,7 @@ export function ReviewSectionView({
           const isEditing = editingReviewId === review.id;
 
           return (
-            <article key={review.id} className="border-t border-zinc-200 pt-5">
+            <article key={review.id} className="border-t border-stone-200 pt-5">
               {isEditing ? (
                 <form
                   onSubmit={(event) => onUpdateReview(event, review.id)}
@@ -193,14 +195,14 @@ export function ReviewSectionView({
                     rows={4}
                     defaultValue={review.body}
                     disabled={isSubmitting}
-                    className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950 disabled:bg-zinc-100"
+                    className={fieldInput()}
                   />
                   <div className="flex flex-wrap items-center gap-3">
                     <select
                       name="rating"
                       defaultValue={review.rating ?? ""}
                       disabled={isSubmitting}
-                      className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950 disabled:bg-zinc-100"
+                      className={fieldInput()}
                     >
                       <option value="">No rating</option>
                       <option value="5">5</option>
@@ -212,7 +214,7 @@ export function ReviewSectionView({
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                      className={buttonVariants({ size: "sm" })}
                     >
                       Save
                     </button>
@@ -220,7 +222,7 @@ export function ReviewSectionView({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => setEditingReviewId(null)}
-                      className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400"
+                      className={buttonVariants({ variant: "secondary", size: "sm" })}
                     >
                       Cancel
                     </button>
@@ -229,23 +231,23 @@ export function ReviewSectionView({
               ) : (
                 <div className="grid gap-2">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm font-medium text-zinc-950">
+                    <p className="text-sm font-medium text-stone-950">
                       {reviewAuthor(review)}
                     </p>
                     {review.rating ? (
-                      <p className="text-sm font-semibold text-emerald-700">
+                      <p className="text-sm font-semibold text-brand-700">
                         {reviewRatingLabel(review.rating)}
                       </p>
                     ) : null}
                   </div>
-                  <p className="leading-7 text-zinc-700">{review.body}</p>
+                  <p className="leading-7 text-stone-700">{review.body}</p>
                   {isAuthor ? (
                     <div className="flex flex-wrap gap-3">
                       <button
                         type="button"
                         onClick={() => onEditReview(review.id)}
                         disabled={isSubmitting}
-                        className="text-sm font-medium text-zinc-950 underline-offset-4 hover:underline disabled:text-zinc-400"
+                        className="text-sm font-medium text-stone-950 underline-offset-4 hover:underline disabled:text-stone-400"
                       >
                         Edit
                       </button>

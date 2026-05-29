@@ -13,6 +13,9 @@ import {
   type ListingQueryInput,
 } from "@/features/listings/schemas";
 import { getSavedListingIdsByUser } from "@/features/saved-listings/queries";
+import { buttonVariants } from "@/features/ui/button";
+import { Eyebrow } from "@/features/ui/card";
+import { Container } from "@/features/ui/container";
 import { auth } from "@/server/auth/auth";
 
 export const dynamic = "force-dynamic";
@@ -45,48 +48,55 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     : [];
   const savedListingIdSet = new Set(savedListingIds);
 
+  const resultLabel = `${listings.length} ${
+    listings.length === 1 ? "place" : "places"
+  } available`;
+
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold text-zinc-950">Listings</h1>
-          <p className="mt-2 text-zinc-600">
-            Apartments and rooms available near campus.
-          </p>
+    <main className="py-10 sm:py-12">
+      <Container>
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <Eyebrow>Browse</Eyebrow>
+            <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+              Listings near campus
+            </h1>
+            <p className="mt-2 text-stone-600">{resultLabel}</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button
+              form={LISTING_FILTER_FORM_ID}
+              type="submit"
+              className={buttonVariants()}
+            >
+              Apply filters
+            </button>
+            <Link
+              href="/listings"
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              Clear
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <button
-            form={LISTING_FILTER_FORM_ID}
-            type="submit"
-            className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-          >
-            Apply filters
-          </button>
-          <Link
-            href="/listings"
-            className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-zinc-100"
-          >
-            Clear
-          </Link>
-        </div>
-      </div>
 
-      <ListingFilterForm key={filterComponentKey(filters)} filters={filters} />
+        <ListingFilterForm key={filterComponentKey(filters)} filters={filters} />
 
-      {listings.length === 0 ? (
-        <ListingEmptyState />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {listings.map((listing) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              isSaved={savedListingIdSet.has(listing.id)}
-              showSaveAction={Boolean(session?.user?.id)}
-            />
-          ))}
-        </div>
-      )}
+        {listings.length === 0 ? (
+          <ListingEmptyState />
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                isSaved={savedListingIdSet.has(listing.id)}
+                showSaveAction={Boolean(session?.user?.id)}
+              />
+            ))}
+          </div>
+        )}
+      </Container>
     </main>
   );
 }

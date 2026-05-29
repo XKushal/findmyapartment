@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import { cn } from "@/features/ui/cn";
+import { HeartIcon } from "@/features/ui/icons";
 import { FormFeedback } from "@/features/ui/form-feedback";
 
 type SavedListingButtonProps = {
@@ -57,12 +59,18 @@ export function SavedListingButton({
         onClick={handleClick}
         disabled={isUpdating || isPending}
         aria-pressed={isSaved}
-        className={
+        className={cn(
+          "inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60",
           isSaved
-            ? "rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-950 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-70"
-            : "rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-950 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-70"
-        }
+            ? "bg-brand-100 text-brand-900 hover:bg-brand-200"
+            : "border border-stone-300 bg-surface text-stone-900 hover:border-stone-400 hover:bg-stone-50",
+        )}
       >
+        <HeartIcon
+          width={16}
+          height={16}
+          className={isSaved ? "fill-brand-700" : undefined}
+        />
         {isSaved ? "Saved" : "Save"}
       </button>
       {error ? <FormFeedback tone="error">{error}</FormFeedback> : null}

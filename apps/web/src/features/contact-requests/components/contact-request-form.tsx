@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { type ContactRequestCreateInput } from "@/features/contact-requests/schemas";
+import { buttonVariants } from "@/features/ui/button";
+import { fieldInput, fieldLabel, fieldSelect, fieldTextarea } from "@/features/ui/field";
 import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ApiErrorBody = {
@@ -114,11 +116,9 @@ export function ContactRequestForm({
   }
 
   return (
-    <section className="mt-8 rounded-md border border-emerald-200 bg-emerald-50 px-5 py-4">
-      <h2 className="text-lg font-semibold text-emerald-950">
-        Contact poster
-      </h2>
-      <p className="mt-1 text-sm text-emerald-900">
+    <section className="mt-8 rounded-2xl border border-brand-200/70 bg-brand-50/60 p-6 shadow-[var(--shadow-soft)]">
+      <h2 className="text-lg font-semibold text-stone-950">Contact poster</h2>
+      <p className="mt-1 text-sm text-stone-600">
         Send a structured request so the poster can review it from their
         profile.
       </p>
@@ -132,7 +132,7 @@ export function ContactRequestForm({
         ) : null}
 
         <div className="grid gap-2">
-          <label htmlFor="message" className="text-sm font-medium text-emerald-950">
+          <label htmlFor="message" className={fieldLabel()}>
             Message
           </label>
           <textarea
@@ -140,7 +140,7 @@ export function ContactRequestForm({
             name="message"
             required
             rows={4}
-            className="rounded-md border border-emerald-300 px-3 py-2 text-sm outline-none focus:border-emerald-900"
+            className={fieldTextarea()}
             placeholder="Share your timing, questions, or tour availability."
           />
         </div>
@@ -149,7 +149,7 @@ export function ContactRequestForm({
           <div className="grid gap-2">
             <label
               htmlFor="preferredContactMethod"
-              className="text-sm font-medium text-emerald-950"
+              className={fieldLabel()}
             >
               Preferred contact
             </label>
@@ -157,7 +157,7 @@ export function ContactRequestForm({
               id="preferredContactMethod"
               name="preferredContactMethod"
               defaultValue="ANY"
-              className="rounded-md border border-emerald-300 px-3 py-2 text-sm outline-none focus:border-emerald-900"
+              className={fieldSelect()}
             >
               <option value="ANY">Any</option>
               <option value="EMAIL">Email</option>
@@ -168,7 +168,7 @@ export function ContactRequestForm({
           <div className="grid gap-2">
             <label
               htmlFor="contactEmail"
-              className="text-sm font-medium text-emerald-950"
+              className={fieldLabel()}
             >
               Contact email
             </label>
@@ -177,14 +177,14 @@ export function ContactRequestForm({
               name="contactEmail"
               type="email"
               defaultValue={defaultContactEmail ?? ""}
-              className="rounded-md border border-emerald-300 px-3 py-2 text-sm outline-none focus:border-emerald-900"
+              className={fieldInput()}
             />
           </div>
 
           <div className="grid gap-2">
             <label
               htmlFor="contactPhone"
-              className="text-sm font-medium text-emerald-950"
+              className={fieldLabel()}
             >
               Contact phone
             </label>
@@ -193,7 +193,7 @@ export function ContactRequestForm({
               name="contactPhone"
               type="tel"
               defaultValue={defaultContactPhone ?? ""}
-              className="rounded-md border border-emerald-300 px-3 py-2 text-sm outline-none focus:border-emerald-900"
+              className={fieldInput()}
             />
           </div>
         </div>
@@ -201,7 +201,7 @@ export function ContactRequestForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-fit rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+          className={buttonVariants({ className: "w-fit" })}
         >
           {isSubmitting ? "Sending..." : "Send request"}
         </button>

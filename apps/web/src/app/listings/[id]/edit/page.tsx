@@ -1,5 +1,7 @@
 import { ListingCreateForm } from "@/features/listings/components/listing-create-form";
 import { getListingById } from "@/features/listings/queries";
+import { Eyebrow } from "@/features/ui/card";
+import { Container } from "@/features/ui/container";
 import { auth } from "@/server/auth/auth";
 import { notFound, redirect } from "next/navigation";
 
@@ -24,18 +26,18 @@ export default async function EditListingPage({ params }: EditListingPageProps) 
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="text-sm font-semibold uppercase tracking-normal text-emerald-700">
-        Edit listing
-      </p>
-      <h1 className="mt-3 text-3xl font-semibold text-zinc-950">
-        Update your housing post.
-      </h1>
-      <p className="mt-4 leading-8 text-zinc-700">
-        Keep availability, price, and images current so students know what is
-        still open.
-      </p>
-      <ListingCreateForm mode="edit" listing={listing} />
+    <main className="py-10 sm:py-12">
+      <Container size="sm">
+        <Eyebrow>Edit listing</Eyebrow>
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+          Update your housing post.
+        </h1>
+        <p className="mt-4 leading-8 text-stone-600">
+          Keep availability, price, and images current so students know what is
+          still open.
+        </p>
+        <ListingCreateForm mode="edit" listing={listing} />
+      </Container>
     </main>
   );
 }
