@@ -16,13 +16,13 @@ export async function AppNav() {
           <Link
             href="/"
             className="group flex items-center gap-2.5"
-            aria-label="AllApartments home"
+            aria-label="RentNest home"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-800 text-brand-50 shadow-[var(--shadow-soft)] transition-transform group-hover:-rotate-3">
               <HomeMarkIcon width={20} height={20} />
             </span>
             <span className="font-display text-lg font-semibold text-stone-950">
-              AllApartments
+              RentNest
             </span>
           </Link>
 

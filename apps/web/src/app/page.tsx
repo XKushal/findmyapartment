@@ -33,7 +33,7 @@ const STEPS = [
   {
     step: "01",
     title: "Browse the board",
-    body: "Search active listings near campus and open the ones that catch your eye.",
+    body: "Search active listings in your area and open the ones that catch your eye.",
   },
   {
     step: "02",
@@ -64,9 +64,9 @@ export default function Home() {
                 <span className="text-brand-700"> feels like home.</span>
               </h1>
               <p className="max-w-xl text-lg leading-8 text-stone-600">
-                Browse trusted apartments, rooms, and roommate leads near
-                campus. Compare rent, save your favorites, and reach posters
-                without the noise.
+                Browse trusted apartments, rooms, and roommates wherever
+                you&apos;re headed. Compare rent, save your favorites, and reach
+                posters without the noise.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/listings" className={buttonVariants({ size: "lg" })}>
@@ -84,7 +84,7 @@ export default function Home() {
                 {[
                   ["3 in 1", "Apartments · rooms · roommates"],
                   ["Free", "To browse and to post"],
-                  ["Local", "Built around campus life"],
+                  ["Anywhere", "Built for renters everywhere"],
                 ].map(([stat, label]) => (
                   <div key={label}>
                     <dt className="font-display text-2xl font-semibold text-stone-950">
@@ -108,12 +108,12 @@ export default function Home() {
                 <div className="space-y-3 p-6">
                   <div className="flex items-baseline justify-between">
                     <p className="font-display text-lg font-semibold text-stone-950">
-                      Sunny 2BR near campus
+                      Sunny 2BR downtown
                     </p>
                     <p className="font-semibold text-brand-800">$1,150</p>
                   </div>
                   <p className="text-sm text-stone-500">
-                    2 bed · 1 bath · 0.4 mi to campus
+                    2 bed · 1 bath · 0.4 mi to transit
                   </p>
                   <div className="flex gap-2 pt-1">
                     {["Laundry", "Parking", "Furnished"].map((tag) => (
@@ -136,7 +136,7 @@ export default function Home() {
       <section className="py-16 sm:py-20">
         <Container>
           <div className="max-w-2xl">
-            <Eyebrow>Why AllApartments</Eyebrow>
+            <Eyebrow>Why RentNest</Eyebrow>
             <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
               Housing search, minus the headache.
             </h2>

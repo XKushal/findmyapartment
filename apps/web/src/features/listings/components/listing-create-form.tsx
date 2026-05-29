@@ -365,7 +365,7 @@ export function ListingCreateForm({
           required
           defaultValue={listing?.title}
           className={fieldInput()}
-          placeholder="Sunny room near campus"
+          placeholder="Sunny room downtown"
         />
       </div>
 
@@ -479,7 +479,7 @@ export function ListingCreateForm({
             htmlFor="distanceToCampus"
             className={fieldLabel()}
           >
-            Distance to campus
+            Distance to transit
           </label>
           <input
             id="distanceToCampus"

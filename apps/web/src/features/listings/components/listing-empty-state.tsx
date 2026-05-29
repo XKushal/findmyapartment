@@ -14,7 +14,7 @@ export function ListingEmptyState() {
       </h2>
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-stone-600">
         Try widening your filters, or be the first to post an apartment, room,
-        or roommate lead near campus.
+        or roommate lead in your area.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link href="/listings" className={buttonVariants({ variant: "secondary" })}>
