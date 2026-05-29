@@ -10,6 +10,9 @@ import { prisma } from "@/server/db/prisma";
 
 vi.mock("@/server/db/prisma", () => ({
   prisma: {
+    listing: {
+      findUnique: vi.fn(),
+    },
     review: {
       create: vi.fn(),
       delete: vi.fn(),
@@ -31,6 +34,7 @@ describe("review mutations", () => {
     vi.mocked(prisma.review.findMany).mockReset();
     vi.mocked(prisma.review.findUnique).mockReset();
     vi.mocked(prisma.review.update).mockReset();
+    vi.mocked(prisma.listing.findUnique).mockReset();
     process.env.DATABASE_URL = "mongodb://example.test/allapartments";
   });
 
@@ -58,6 +62,10 @@ describe("review mutations", () => {
   });
 
   it("creates a review connected to the listing and signed-in author", async () => {
+    vi.mocked(prisma.listing.findUnique).mockResolvedValue({
+      id: listingId,
+      ownerId: "507f1f77bcf86cd799439088",
+    });
     vi.mocked(prisma.review.create).mockResolvedValue({});
 
     await createReview(
@@ -93,6 +101,27 @@ describe("review mutations", () => {
         },
       },
     });
+  });
+
+  it("blocks listing owners from reviewing their own listings", async () => {
+    vi.mocked(prisma.listing.findUnique).mockResolvedValue({
+      id: listingId,
+      ownerId: authorId,
+    });
+
+    await expect(
+      createReview(
+        listingId,
+        {
+          body: "Reviewing my own listing.",
+          rating: 5,
+        },
+        authorId,
+      ),
+    ).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
+    expect(prisma.review.create).not.toHaveBeenCalled();
   });
 
   it("blocks updates from users who did not author the review", async () => {

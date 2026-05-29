@@ -199,6 +199,7 @@ export default async function ListingDetailPage({
         listingId={listing.id}
         initialReviews={reviews.map(serializeReview)}
         currentUserId={session?.user?.id ?? null}
+        isOwner={isOwner}
       />
     </main>
   );

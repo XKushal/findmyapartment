@@ -30,15 +30,15 @@
 - Modify: `apps/web/src/app/listings/[id]/page.tsx`
 - Test: `apps/web/src/app/listings/[id]/page.test.tsx`
 
-- [ ] Write failing tests for average rating text, individual rating label text, and owner copy hiding the add-review form.
-- [ ] Run `npm test -- review-section.test.tsx listings/[id]/page.test.tsx` and confirm the new tests fail.
-- [ ] Export `averageReviewRating(reviews)` and `reviewRatingLabel(rating)` from `review-section.tsx`.
-- [ ] Add `isOwner?: boolean` to `ReviewSectionProps`.
-- [ ] Show average rating text when at least one review has a rating.
-- [ ] Render individual ratings through `reviewRatingLabel`.
-- [ ] Show owner copy instead of the create form when `isOwner` is true.
-- [ ] Pass `isOwner={isOwner}` from the listing detail page.
-- [ ] Run `npm test -- review-section.test.tsx listings/[id]/page.test.tsx` and confirm it passes.
+- [x] Write failing tests for average rating text, individual rating label text, and owner copy hiding the add-review form.
+- [x] Run `npm test -- review-section.test.tsx listings/[id]/page.test.tsx` and confirm the new tests fail.
+- [x] Export `averageReviewRating(reviews)` and `reviewRatingLabel(rating)` from `review-section.tsx`.
+- [x] Add `isOwner?: boolean` to `ReviewSectionProps`.
+- [x] Show average rating text when at least one review has a rating.
+- [x] Render individual ratings through `reviewRatingLabel`.
+- [x] Show owner copy instead of the create form when `isOwner` is true.
+- [x] Pass `isOwner={isOwner}` from the listing detail page.
+- [x] Run `npm test -- review-section.test.tsx listings/[id]/page.test.tsx` and confirm it passes.
 
 ### Task 2: Owner Self-Review Blocking
 
@@ -47,21 +47,20 @@
 - Test: `apps/web/src/features/reviews/mutations.test.ts`
 - Test: `apps/web/src/app/api/listings/[id]/reviews/route.test.ts`
 
-- [ ] Write failing mutation test that `createReview` throws `FORBIDDEN` when the listing owner id matches the author id.
-- [ ] Write failing route test that owner self-review returns `403`.
-- [ ] Run `npm test -- reviews` and confirm owner-blocking tests fail.
-- [ ] In `createReview`, read the listing owner before creating the review.
-- [ ] Throw `forbidden("Listing owners cannot review their own listings.")` when owner and author match.
-- [ ] Keep no-database behavior returning `null`.
-- [ ] Run `npm test -- reviews` and confirm it passes.
+- [x] Write failing mutation test that `createReview` throws `FORBIDDEN` when the listing owner id matches the author id.
+- [x] Write failing route test that owner self-review returns `403`.
+- [x] Run `npm test -- reviews` and confirm owner-blocking tests fail.
+- [x] In `createReview`, read the listing owner before creating the review.
+- [x] Throw `forbidden("Listing owners cannot review their own listings.")` when owner and author match.
+- [x] Keep no-database behavior returning `null`.
+- [x] Run `npm test -- reviews` and confirm it passes.
 
 ### Task 3: Full Verification
 
 **Files:**
 - Verify current branch only.
 
-- [ ] Run `npm test`.
-- [ ] Run `npm run lint`.
-- [ ] Run `npm run build`.
-- [ ] Commit with `git commit -m "Polish listing reviews"`.
-
+- [x] Run `npm test`.
+- [x] Run `npm run lint`.
+- [x] Run `npm run build`.
+- [x] Commit with `git commit -m "Polish listing reviews"`.
