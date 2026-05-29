@@ -8,6 +8,7 @@ describe("OpenAPI document", () => {
 
     expect(document.openapi).toBe("3.0.0");
     expect(document.paths["/api/auth/register"]?.post).toBeDefined();
+    expect(document.paths["/api/profile"]?.patch).toBeDefined();
     expect(document.paths["/api/listings"]?.get).toBeDefined();
     expect(document.paths["/api/listings"]?.post).toBeDefined();
     expect(document.paths["/api/listings/{id}"]?.get).toBeDefined();
@@ -22,6 +23,8 @@ describe("OpenAPI document", () => {
     expect(document.paths["/api/reviews/{reviewId}"]?.delete).toBeDefined();
     expect(document.components?.schemas?.ApiErrorResponse).toBeDefined();
     expect(document.components?.schemas?.RegisterResponse).toBeDefined();
+    expect(document.components?.schemas?.ProfileUpdateBody).toBeDefined();
+    expect(document.components?.schemas?.UserResponse).toBeDefined();
     expect(document.components?.schemas?.ReviewDetailResponse).toBeDefined();
     expect(document.components?.schemas?.ContactRequestCreateBody).toBeDefined();
     expect(document.components?.schemas?.ContactRequestDetailResponse).toBeDefined();
@@ -53,6 +56,10 @@ describe("OpenAPI document", () => {
       document.paths["/api/listings/{id}/contact-requests"]?.post?.responses?.[403],
     ).toBeDefined();
     expect(document.paths["/api/listings/{id}/save"]?.post?.responses?.[401]).toBeDefined();
+    expect(document.paths["/api/profile"]?.patch?.responses?.[401]).toBeDefined();
+    expect(
+      document.paths["/api/listings/{id}/reviews"]?.post?.responses?.[403],
+    ).toBeDefined();
     expect(document.paths["/api/reviews/{reviewId}"]?.patch?.responses?.[403]).toBeDefined();
   });
 });

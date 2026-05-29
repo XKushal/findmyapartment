@@ -8,6 +8,7 @@ import { z } from "zod";
 import {
   registerBodySchema,
   registerResponseSchema,
+  safeUserSchema,
 } from "@/features/auth/schemas";
 import {
   contactRequestCreateBodySchema,
@@ -29,6 +30,7 @@ import {
   reviewUpdateBodySchema,
   reviewsResponseSchema,
 } from "@/features/reviews/schemas";
+import { profileUpdateBodySchema } from "@/features/profile/schemas";
 import { savedListingResponseSchema } from "@/features/saved-listings/schemas";
 
 extendZodWithOpenApi(z);
@@ -70,6 +72,8 @@ export function createOpenApiDocument() {
   registry.register("ApiErrorResponse", apiErrorResponseSchema);
   registry.register("RegisterBody", registerBodySchema);
   registry.register("RegisterResponse", registerResponseSchema);
+  registry.register("UserResponse", safeUserSchema);
+  registry.register("ProfileUpdateBody", profileUpdateBodySchema);
   registry.register("ListingCreateBody", listingCreateBodySchema);
   registry.register("ListingUpdateBody", listingUpdateBodySchema);
   registry.register("ListingsResponse", listingsResponseSchema);
@@ -98,6 +102,23 @@ export function createOpenApiDocument() {
       201: jsonContent(registerResponseSchema, "Registered user response."),
       400: jsonContent(apiErrorResponseSchema, "Validation error response."),
       409: jsonContent(apiErrorResponseSchema, "Duplicate email response."),
+      500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
+    },
+  });
+
+  registry.registerPath({
+    method: "patch",
+    path: "/api/profile",
+    summary: "Update current user profile",
+    description:
+      "Updates account basics and default contact information for the signed-in user.",
+    request: {
+      body: jsonRequestBody(profileUpdateBodySchema, "Profile update payload."),
+    },
+    responses: {
+      200: jsonContent(registerResponseSchema, "Updated profile response."),
+      400: jsonContent(apiErrorResponseSchema, "Validation error response."),
+      401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
       500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
     },
   });
@@ -278,6 +299,7 @@ export function createOpenApiDocument() {
       201: jsonContent(reviewDetailResponseSchema, "Created review response."),
       400: jsonContent(apiErrorResponseSchema, "Validation error response."),
       401: jsonContent(apiErrorResponseSchema, "Authentication required response."),
+      403: jsonContent(apiErrorResponseSchema, "Owner review forbidden response."),
       500: jsonContent(apiErrorResponseSchema, "Unexpected server error response."),
     },
   });
