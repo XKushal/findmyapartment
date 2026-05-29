@@ -1,20 +1,81 @@
 @import "tailwindcss";
 @import "swagger-ui-react/swagger-ui.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  AllApartments design system — "warm wood"
+  A cozy, editorial housing marketplace palette: cream paper, walnut/oak
+  brand tones, and warm stone neutrals. Serif display + humanist sans body.
+*/
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
+@theme {
+  /* Warm paper + ink */
+  --color-background: #fbf7f1;
+  --color-surface: #ffffff;
+  --color-foreground: #2b2521;
+
+  /* Brand — oak / walnut / clay */
+  --color-brand-50: #fbf4ea;
+  --color-brand-100: #f4e4cd;
+  --color-brand-200: #e9c89c;
+  --color-brand-300: #dca969;
+  --color-brand-400: #cd8d44;
+  --color-brand-500: #bd7733;
+  --color-brand-600: #a35f29;
+  --color-brand-700: #834922;
+  --color-brand-800: #6a3b21;
+  --color-brand-900: #58321f;
+  --color-brand-950: #32190e;
+
+  /* Type */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-serif: "Georgia", "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
+    serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  /* Soft, warm shadows (brown-tinted rather than neutral gray) */
+  --shadow-soft: 0 1px 2px rgba(80, 50, 25, 0.04),
+    0 8px 24px -12px rgba(80, 50, 25, 0.18);
+  --shadow-lift: 0 2px 4px rgba(80, 50, 25, 0.05),
+    0 18px 40px -18px rgba(80, 50, 25, 0.28);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-200);
+    color: var(--color-brand-950);
+  }
+
+  /* Consistent, on-brand focus ring for keyboard users */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+
+  /* Subtle warm grain/wash used behind hero + section accents */
+  .surface-grain {
+    background-image:
+      radial-gradient(60rem 30rem at 110% -10%, rgba(189, 119, 51, 0.1), transparent 60%),
+      radial-gradient(50rem 28rem at -10% 0%, rgba(220, 169, 105, 0.12), transparent 55%);
+  }
 }

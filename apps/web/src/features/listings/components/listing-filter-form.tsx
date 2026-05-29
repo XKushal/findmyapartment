@@ -1,4 +1,5 @@
 import { type ListingQueryInput } from "@/features/listings/schemas";
+import { fieldInput, fieldLabel, fieldSelect } from "@/features/ui/field";
 
 export const LISTING_FILTER_FORM_ID = "listing-filter-form";
 
@@ -28,11 +29,11 @@ export function ListingFilterForm({ filters }: ListingFilterFormProps) {
       key={filterFormKey(filters)}
       id={LISTING_FILTER_FORM_ID}
       action="/listings"
-      className="mb-8 grid gap-4 rounded-md border border-zinc-200 p-4"
+      className="mb-8 grid gap-5 rounded-2xl border border-stone-200/80 bg-surface p-5 shadow-[var(--shadow-soft)] sm:p-6"
     >
       <div className="grid gap-4 md:grid-cols-3">
         <div className="grid gap-2">
-          <label htmlFor="rentMin" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="rentMin" className={fieldLabel()}>
             Min price
           </label>
           <input
@@ -42,13 +43,13 @@ export function ListingFilterForm({ filters }: ListingFilterFormProps) {
             min="0"
             step="1"
             defaultValue={value(filters.rentMin)}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="700"
           />
         </div>
 
         <div className="grid gap-2">
-          <label htmlFor="rentMax" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="rentMax" className={fieldLabel()}>
             Max price
           </label>
           <input
@@ -58,20 +59,20 @@ export function ListingFilterForm({ filters }: ListingFilterFormProps) {
             min="0"
             step="1"
             defaultValue={value(filters.rentMax)}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="1200"
           />
         </div>
 
         <div className="grid gap-2">
-          <label htmlFor="type" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="type" className={fieldLabel()}>
             Home type
           </label>
           <select
             id="type"
             name="type"
             defaultValue={filters.type ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldSelect()}
           >
             <option value="">Any type</option>
             <option value="APARTMENT">Apartment</option>
@@ -83,10 +84,7 @@ export function ListingFilterForm({ filters }: ListingFilterFormProps) {
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="grid gap-2">
-          <label
-            htmlFor="bedroomsMin"
-            className="text-sm font-medium text-zinc-800"
-          >
+          <label htmlFor="bedroomsMin" className={fieldLabel()}>
             Beds
           </label>
           <input
@@ -96,16 +94,13 @@ export function ListingFilterForm({ filters }: ListingFilterFormProps) {
             min="0"
             step="1"
             defaultValue={value(filters.bedroomsMin)}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="1"
           />
         </div>
 
         <div className="grid gap-2">
-          <label
-            htmlFor="bathroomsMin"
-            className="text-sm font-medium text-zinc-800"
-          >
+          <label htmlFor="bathroomsMin" className={fieldLabel()}>
             Baths
           </label>
           <input
@@ -115,16 +110,13 @@ export function ListingFilterForm({ filters }: ListingFilterFormProps) {
             min="0"
             step="0.5"
             defaultValue={value(filters.bathroomsMin)}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="1"
           />
         </div>
 
         <div className="grid gap-2">
-          <label
-            htmlFor="availableBy"
-            className="text-sm font-medium text-zinc-800"
-          >
+          <label htmlFor="availableBy" className={fieldLabel()}>
             Move-in by
           </label>
           <input
@@ -132,22 +124,19 @@ export function ListingFilterForm({ filters }: ListingFilterFormProps) {
             name="availableBy"
             type="date"
             defaultValue={filters.availableBy ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
           />
         </div>
 
         <div className="grid gap-2">
-          <label
-            htmlFor="petPolicy"
-            className="text-sm font-medium text-zinc-800"
-          >
+          <label htmlFor="petPolicy" className={fieldLabel()}>
             Pet policy
           </label>
           <select
             id="petPolicy"
             name="petPolicy"
             defaultValue={filters.petPolicy ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldSelect()}
           >
             <option value="">Any policy</option>
             <option value="PETS_ALLOWED">Pets allowed</option>

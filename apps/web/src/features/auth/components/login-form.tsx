@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { buttonVariants } from "@/features/ui/button";
+import { fieldInput, fieldLabel } from "@/features/ui/field";
 import { FormFeedback } from "@/features/ui/form-feedback";
 
 type LoginFormProps = {
@@ -103,7 +105,7 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
       ) : null}
 
       <div className="grid gap-2">
-        <label htmlFor="email" className="text-sm font-medium text-zinc-800">
+        <label htmlFor="email" className={fieldLabel()}>
           Email
         </label>
         <input
@@ -113,12 +115,12 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
           required
           autoComplete="email"
           disabled={isSubmitting}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldInput()}
         />
       </div>
 
       <div className="grid gap-2">
-        <label htmlFor="password" className="text-sm font-medium text-zinc-800">
+        <label htmlFor="password" className={fieldLabel()}>
           Password
         </label>
         <input
@@ -128,23 +130,23 @@ export function LoginForm({ callbackUrl }: LoginFormProps) {
           required
           autoComplete="current-password"
           disabled={isSubmitting}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldInput()}
         />
       </div>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="rounded-md bg-zinc-950 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+        className={buttonVariants({ size: "lg", className: "w-full" })}
       >
         {isSubmitting ? "Signing in..." : "Sign in"}
       </button>
 
-      <p className="text-sm text-zinc-600">
+      <p className="text-sm text-stone-600">
         Need an account?{" "}
         <Link
           href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-          className="font-medium text-zinc-950 underline-offset-4 hover:underline"
+          className="font-semibold text-brand-700 underline-offset-4 hover:underline"
         >
           Create one
         </Link>

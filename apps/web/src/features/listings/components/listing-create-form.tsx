@@ -10,6 +10,8 @@ import {
   LISTING_IMAGE_MAX_COUNT,
   type ListingCreateInput,
 } from "@/features/listings/schemas";
+import { buttonVariants } from "@/features/ui/button";
+import { fieldInput, fieldLabel, fieldSelect, fieldTextarea } from "@/features/ui/field";
 import { FormFeedback } from "@/features/ui/form-feedback";
 
 type ApiErrorBody = {
@@ -131,10 +133,10 @@ type RoommateFitFieldsProps = {
 
 export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
   return (
-    <section className="grid gap-4 rounded-md border border-zinc-200 p-4">
+    <section className="grid gap-4 rounded-2xl border border-stone-200/80 bg-brand-50/40 p-5">
       <div>
-        <h2 className="text-sm font-semibold text-zinc-950">Roommate fit</h2>
-        <p className="mt-1 text-sm text-zinc-600">
+        <h2 className="text-sm font-semibold text-stone-950">Roommate fit</h2>
+        <p className="mt-1 text-sm text-stone-600">
           Share compatibility details for people comparing roommate leads.
         </p>
       </div>
@@ -143,7 +145,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
         <div className="grid gap-2">
           <label
             htmlFor="roommateCount"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Roommates needed
           </label>
@@ -154,7 +156,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
             step="1"
             type="number"
             defaultValue={listing?.roommateCount ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="1"
           />
         </div>
@@ -162,7 +164,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
         <div className="grid gap-2">
           <label
             htmlFor="preferredGender"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Preferred gender
           </label>
@@ -170,7 +172,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
             id="preferredGender"
             name="preferredGender"
             defaultValue={listing?.preferredGender ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="No preference"
           />
         </div>
@@ -178,14 +180,14 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <label htmlFor="lifestyle" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="lifestyle" className={fieldLabel()}>
             Lifestyle
           </label>
           <input
             id="lifestyle"
             name="lifestyle"
             defaultValue={listing?.lifestyle ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="Quiet weekdays, social weekends"
           />
         </div>
@@ -193,7 +195,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
         <div className="grid gap-2">
           <label
             htmlFor="cleanliness"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Cleanliness
           </label>
@@ -201,7 +203,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
             id="cleanliness"
             name="cleanliness"
             defaultValue={listing?.cleanliness ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="Shared chores weekly"
           />
         </div>
@@ -210,7 +212,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
       <div className="grid gap-2">
         <label
           htmlFor="smokingPolicy"
-          className="text-sm font-medium text-zinc-800"
+          className={fieldLabel()}
         >
           Smoking policy
         </label>
@@ -218,7 +220,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
           id="smokingPolicy"
           name="smokingPolicy"
           defaultValue={listing?.smokingPolicy ?? ""}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldInput()}
           placeholder="No smoking"
         />
       </div>
@@ -226,7 +228,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
       <div className="grid gap-2">
         <label
           htmlFor="roommatePreferences"
-          className="text-sm font-medium text-zinc-800"
+          className={fieldLabel()}
         >
           Roommate preferences
         </label>
@@ -235,7 +237,7 @@ export function RoommateFitFields({ listing }: RoommateFitFieldsProps) {
           name="roommatePreferences"
           rows={3}
           defaultValue={listing?.roommatePreferences ?? ""}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldTextarea()}
           placeholder="Graduate students preferred"
         />
       </div>
@@ -354,7 +356,7 @@ export function ListingCreateForm({
       ) : null}
 
       <div className="grid gap-2">
-        <label htmlFor="title" className="text-sm font-medium text-zinc-800">
+        <label htmlFor="title" className={fieldLabel()}>
           Title
         </label>
         <input
@@ -362,14 +364,14 @@ export function ListingCreateForm({
           name="title"
           required
           defaultValue={listing?.title}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldInput()}
           placeholder="Sunny room near campus"
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <label htmlFor="type" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="type" className={fieldLabel()}>
             Type
           </label>
           <select
@@ -380,7 +382,7 @@ export function ListingCreateForm({
             onChange={(event) =>
               setSelectedType(event.target.value as ListingCreateInput["type"])
             }
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldSelect()}
           >
             <option value="APARTMENT">Apartment</option>
             <option value="ROOM">Room</option>
@@ -389,7 +391,7 @@ export function ListingCreateForm({
         </div>
 
         <div className="grid gap-2">
-          <label htmlFor="rent" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="rent" className={fieldLabel()}>
             Rent
           </label>
           <input
@@ -400,14 +402,14 @@ export function ListingCreateForm({
             step="1"
             type="number"
             defaultValue={listing?.rent}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="900"
           />
         </div>
       </div>
 
       <div className="grid gap-2">
-        <label htmlFor="description" className="text-sm font-medium text-zinc-800">
+        <label htmlFor="description" className={fieldLabel()}>
           Description
         </label>
         <textarea
@@ -416,14 +418,14 @@ export function ListingCreateForm({
           required
           rows={5}
           defaultValue={listing?.description}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldTextarea()}
           placeholder="Share the important details, roommate expectations, and what makes the place useful."
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <label htmlFor="deposit" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="deposit" className={fieldLabel()}>
             Deposit
           </label>
           <input
@@ -433,7 +435,7 @@ export function ListingCreateForm({
             step="1"
             type="number"
             defaultValue={listing?.deposit ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="500"
           />
         </div>
@@ -441,7 +443,7 @@ export function ListingCreateForm({
         <div className="grid gap-2">
           <label
             htmlFor="availableFrom"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Available from
           </label>
@@ -450,7 +452,7 @@ export function ListingCreateForm({
             name="availableFrom"
             type="date"
             defaultValue={toDateInputValue(listing?.availableFrom)}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
           />
         </div>
       </div>
@@ -459,7 +461,7 @@ export function ListingCreateForm({
         <div className="grid gap-2">
           <label
             htmlFor="leaseDuration"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Lease duration
           </label>
@@ -467,7 +469,7 @@ export function ListingCreateForm({
             id="leaseDuration"
             name="leaseDuration"
             defaultValue={listing?.leaseDuration ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="12 months"
           />
         </div>
@@ -475,7 +477,7 @@ export function ListingCreateForm({
         <div className="grid gap-2">
           <label
             htmlFor="distanceToCampus"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Distance to campus
           </label>
@@ -483,21 +485,21 @@ export function ListingCreateForm({
             id="distanceToCampus"
             name="distanceToCampus"
             defaultValue={listing?.distanceToCampus ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="0.5 miles"
           />
         </div>
       </div>
 
       <div className="grid gap-2">
-        <label htmlFor="address" className="text-sm font-medium text-zinc-800">
+        <label htmlFor="address" className={fieldLabel()}>
           Address
         </label>
         <input
           id="address"
           name="address"
           defaultValue={listing?.address ?? ""}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldInput()}
           placeholder="720 4th Ave S"
         />
       </div>
@@ -506,7 +508,7 @@ export function ListingCreateForm({
         <div className="grid gap-2">
           <label
             htmlFor="contactEmail"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Contact email
           </label>
@@ -515,7 +517,7 @@ export function ListingCreateForm({
             name="contactEmail"
             type="email"
             defaultValue={listing?.contactEmail ?? defaultContactEmail ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="poster@example.com"
           />
         </div>
@@ -523,7 +525,7 @@ export function ListingCreateForm({
         <div className="grid gap-2">
           <label
             htmlFor="contactPhone"
-            className="text-sm font-medium text-zinc-800"
+            className={fieldLabel()}
           >
             Contact phone
           </label>
@@ -532,7 +534,7 @@ export function ListingCreateForm({
             name="contactPhone"
             type="tel"
             defaultValue={listing?.contactPhone ?? defaultContactPhone ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
             placeholder="320-555-1212"
           />
         </div>
@@ -540,7 +542,7 @@ export function ListingCreateForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <label htmlFor="bedrooms" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="bedrooms" className={fieldLabel()}>
             Bedrooms
           </label>
           <input
@@ -550,12 +552,12 @@ export function ListingCreateForm({
             step="1"
             type="number"
             defaultValue={listing?.bedrooms ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
           />
         </div>
 
         <div className="grid gap-2">
-          <label htmlFor="bathrooms" className="text-sm font-medium text-zinc-800">
+          <label htmlFor="bathrooms" className={fieldLabel()}>
             Bathrooms
           </label>
           <input
@@ -565,20 +567,20 @@ export function ListingCreateForm({
             step="0.5"
             type="number"
             defaultValue={listing?.bathrooms ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+            className={fieldInput()}
           />
         </div>
       </div>
 
       <div className="grid gap-2">
-        <label htmlFor="petPolicy" className="text-sm font-medium text-zinc-800">
+        <label htmlFor="petPolicy" className={fieldLabel()}>
           Pet policy
         </label>
         <select
           id="petPolicy"
           name="petPolicy"
           defaultValue={listing?.petPolicy ?? "UNKNOWN"}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldSelect()}
         >
           <option value="UNKNOWN">Not specified</option>
           <option value="PETS_ALLOWED">Pets allowed</option>
@@ -588,12 +590,12 @@ export function ListingCreateForm({
         </select>
       </div>
 
-      <label className="flex items-center gap-3 text-sm font-medium text-zinc-800">
+      <label className="flex items-center gap-3 text-sm font-medium text-stone-800">
         <input
           name="utilitiesIncluded"
           type="checkbox"
           defaultChecked={listing?.utilitiesIncluded ?? false}
-          className="h-4 w-4 rounded border-zinc-300"
+          className="h-4 w-4 rounded border-stone-300 text-brand-700 accent-brand-700"
         />
         Utilities included
       </label>
@@ -603,7 +605,7 @@ export function ListingCreateForm({
       ) : null}
 
       <div className="grid gap-2">
-        <label htmlFor="amenities" className="text-sm font-medium text-zinc-800">
+        <label htmlFor="amenities" className={fieldLabel()}>
           Amenities
         </label>
         <textarea
@@ -611,22 +613,22 @@ export function ListingCreateForm({
           name="amenities"
           rows={2}
           defaultValue={listing?.amenities.join(", ") ?? ""}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-950"
+          className={fieldTextarea()}
           placeholder="Laundry, parking, furnished"
         />
       </div>
 
       <div className="grid gap-3">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-zinc-800">Images</p>
-          <p className="text-xs text-zinc-500">
+          <p className={fieldLabel()}>Images</p>
+          <p className="text-xs text-stone-500">
             {imageUrls.length}/{LISTING_IMAGE_MAX_COUNT}
           </p>
         </div>
         <div
           onDragOver={(event) => event.preventDefault()}
           onDrop={handleDrop}
-          className="grid gap-3 rounded-md border border-dashed border-zinc-300 px-4 py-6 text-center"
+          className="grid gap-3 rounded-2xl border border-dashed border-stone-300 bg-stone-50/60 px-4 py-8 text-center transition-colors hover:border-brand-300"
         >
           <input
             ref={fileInputRef}
@@ -641,11 +643,11 @@ export function ListingCreateForm({
               }
             }}
           />
-          <p className="text-sm text-zinc-600">Drop images here or choose files.</p>
+          <p className="text-sm text-stone-600">Drop images here or choose files.</p>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="mx-auto rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-zinc-100"
+            className={buttonVariants({ variant: "secondary", size: "sm", className: "mx-auto" })}
           >
             Choose images
           </button>
@@ -655,7 +657,7 @@ export function ListingCreateForm({
             {imageUrls.map((imageUrl, index) => (
               <div
                 key={imageUrl}
-                className="relative h-28 w-36 shrink-0 overflow-hidden rounded-md border border-zinc-200 bg-zinc-100"
+                className="relative h-28 w-36 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-stone-100"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -670,7 +672,7 @@ export function ListingCreateForm({
                       current.filter((currentUrl) => currentUrl !== imageUrl),
                     )
                   }
-                  className="absolute right-2 top-2 rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-zinc-950 shadow-sm hover:bg-white"
+                  className="absolute right-2 top-2 rounded-lg bg-white/90 px-2 py-1 text-xs font-medium text-stone-950 shadow-sm backdrop-blur hover:bg-white"
                 >
                   Remove
                 </button>
@@ -683,7 +685,7 @@ export function ListingCreateForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="rounded-md bg-zinc-950 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+        className={buttonVariants({ size: "lg", className: "w-full sm:w-auto" })}
       >
         {isSubmitting
           ? isEditMode

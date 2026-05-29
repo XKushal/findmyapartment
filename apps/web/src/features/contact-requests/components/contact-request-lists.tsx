@@ -33,24 +33,24 @@ export function ContactRequestsReceivedList({
     <section className="mt-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold text-zinc-950">
+          <h2 className="text-2xl font-semibold text-stone-950">
             Requests received
           </h2>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="mt-1 text-sm text-stone-600">
             Review renter interest across your listings.
           </p>
         </div>
-        <p className="text-sm font-medium text-zinc-500">
+        <p className="text-sm font-medium text-stone-500">
           {contactRequests.length} total
         </p>
       </div>
 
       {contactRequests.length === 0 ? (
-        <div className="mt-6 rounded-md border border-dashed border-zinc-300 px-6 py-8 text-center">
-          <h3 className="text-lg font-semibold text-zinc-950">
+        <div className="mt-6 rounded-md border border-dashed border-stone-300 px-6 py-8 text-center">
+          <h3 className="text-lg font-semibold text-stone-950">
             No requests received yet
           </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-zinc-600">
+          <p className="mx-auto mt-2 max-w-md text-sm text-stone-600">
             Requests from renters will show up here after they contact you from
             a listing.
           </p>
@@ -60,33 +60,33 @@ export function ContactRequestsReceivedList({
           {contactRequests.map((request) => (
             <article
               key={request.id}
-              className="rounded-md border border-zinc-200 p-4"
+              className="rounded-2xl border border-stone-200/80 bg-surface p-5 shadow-[var(--shadow-soft)]"
             >
               <div className="flex flex-wrap justify-between gap-3">
                 <div>
                   <h3 className="font-semibold">
                     <Link
                       href={`/listings/${request.listingId}`}
-                      className="text-zinc-950 underline-offset-4 hover:underline"
+                      className="text-stone-950 underline-offset-4 hover:underline"
                     >
                       {request.listingTitle}
                     </Link>
                   </h3>
-                  <p className="mt-1 text-sm text-zinc-600">
+                  <p className="mt-1 text-sm text-stone-600">
                     From {request.requesterName ?? request.requesterEmail ?? "Renter"}
                   </p>
                 </div>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-stone-500">
                   {formatDate(request.createdAt)}
                 </p>
               </div>
-              <p className="mt-3 text-sm leading-6 text-zinc-700">
+              <p className="mt-3 text-sm leading-6 text-stone-700">
                 {request.message}
               </p>
-              <p className="mt-3 text-sm font-medium text-zinc-950">
+              <p className="mt-3 text-sm font-medium text-stone-950">
                 Preferred contact: {methodLabel(request.preferredContactMethod)}
               </p>
-              <p className="mt-1 text-sm text-zinc-600">
+              <p className="mt-1 text-sm text-stone-600">
                 {[request.contactEmail, request.contactPhone].filter(Boolean).join(" · ")}
               </p>
             </article>
@@ -104,24 +104,24 @@ export function ContactRequestsSentList({
     <section className="mt-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold text-zinc-950">
+          <h2 className="text-2xl font-semibold text-stone-950">
             Requests sent
           </h2>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="mt-1 text-sm text-stone-600">
             Track the listings you contacted from the app.
           </p>
         </div>
-        <p className="text-sm font-medium text-zinc-500">
+        <p className="text-sm font-medium text-stone-500">
           {contactRequests.length} total
         </p>
       </div>
 
       {contactRequests.length === 0 ? (
-        <div className="mt-6 rounded-md border border-dashed border-zinc-300 px-6 py-8 text-center">
-          <h3 className="text-lg font-semibold text-zinc-950">
+        <div className="mt-6 rounded-md border border-dashed border-stone-300 px-6 py-8 text-center">
+          <h3 className="text-lg font-semibold text-stone-950">
             No requests sent yet
           </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-zinc-600">
+          <p className="mx-auto mt-2 max-w-md text-sm text-stone-600">
             Contact a poster from a listing detail page and your request will
             appear here.
           </p>
@@ -131,30 +131,30 @@ export function ContactRequestsSentList({
           {contactRequests.map((request) => (
             <article
               key={request.id}
-              className="rounded-md border border-zinc-200 p-4"
+              className="rounded-2xl border border-stone-200/80 bg-surface p-5 shadow-[var(--shadow-soft)]"
             >
               <div className="flex flex-wrap justify-between gap-3">
                 <div>
                   <h3 className="font-semibold">
                     <Link
                       href={`/listings/${request.listingId}`}
-                      className="text-zinc-950 underline-offset-4 hover:underline"
+                      className="text-stone-950 underline-offset-4 hover:underline"
                     >
                       {request.listingTitle}
                     </Link>
                   </h3>
-                  <p className="mt-1 text-sm text-zinc-600">
+                  <p className="mt-1 text-sm text-stone-600">
                     To {request.ownerName ?? request.ownerEmail ?? "Owner"}
                   </p>
                 </div>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-stone-500">
                   {formatDate(request.createdAt)}
                 </p>
               </div>
-              <p className="mt-3 text-sm leading-6 text-zinc-700">
+              <p className="mt-3 text-sm leading-6 text-stone-700">
                 {request.message}
               </p>
-              <p className="mt-3 text-sm font-medium text-zinc-950">
+              <p className="mt-3 text-sm font-medium text-stone-950">
                 Preferred contact: {methodLabel(request.preferredContactMethod)}
               </p>
             </article>
