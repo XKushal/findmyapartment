@@ -279,6 +279,9 @@ Environment variables:
 
 - `DATABASE_URL`
 - `AUTH_SECRET`
+- `AUTH_URL`
+- `AUTH_TRUST_HOST`
+- `NEXTAUTH_URL`
 - `NEXT_PUBLIC_APP_URL`
 - image storage credentials if using Cloudinary/Vercel Blob
 
@@ -311,8 +314,14 @@ Expected local environment variables:
 ```bash
 DATABASE_URL="mongodb+srv://<db-user>:<db-password>@<cluster-host>/allapartments?retryWrites=true&w=majority&appName=Cluster0"
 AUTH_SECRET="<generated-secret>"
+AUTH_URL="http://localhost:3000"
+AUTH_TRUST_HOST=true
 NEXTAUTH_URL="http://localhost:3000"
 ```
+
+`AUTH_URL`, `AUTH_TRUST_HOST`, and `NEXTAUTH_URL` should all be present for local
+production-mode checks such as `npm run build` followed by `npm start`. This
+keeps Auth.js host validation aligned with the local app URL.
 
 Prisma datasource:
 
@@ -343,9 +352,10 @@ Each branch should be small enough to review and merge independently.
 
 ## Migration Strategy
 
-Do not directly mutate the old version folders. Keep them as historical references.
+The old version folders are historical references only. They should not receive
+new feature work.
 
-Long-term repo layout after migration:
+Current repo layout after migration:
 
 ```text
 legacy/
@@ -358,15 +368,9 @@ docs/
   architecture/
 ```
 
-If we want to preserve the current folder names for now, we can leave `v1` through `v12` in place and create the new app in:
-
-```text
-apps/web
-```
-
-Later, move old versions into `legacy/` in a cleanup branch.
-
-Branching decision: keep the current `v1` through `v12` folders in place while the new app is being built. Once the migrated app is working, move the old version folders on a dedicated `release/legacy` branch so history stays available without crowding the active application.
+The migrated Next.js app in `apps/web` is the active codebase. The archived
+`legacy/v1` through `legacy/v12` folders remain available for behavior reference
+and project history.
 
 ## Architecture Decision
 
