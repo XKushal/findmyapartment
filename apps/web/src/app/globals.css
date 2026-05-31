@@ -26,6 +26,13 @@
   --color-brand-900: #58321f;
   --color-brand-950: #32190e;
 
+  /* Secondary trust accent used sparingly for hierarchy and empty states */
+  --color-accent-50: #edf8f4;
+  --color-accent-100: #d5efe6;
+  --color-accent-200: #abdccc;
+  --color-accent-700: #24705e;
+  --color-accent-800: #1f5d50;
+
   /* Type */
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;

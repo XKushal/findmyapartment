@@ -11,22 +11,22 @@ export async function AppNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200/70 bg-background/85 backdrop-blur-md">
-      <Container>
-        <div className="flex h-16 items-center justify-between gap-4">
+      <Container className="px-3 sm:px-8">
+        <div className="flex h-16 min-w-0 items-center justify-between gap-2 sm:gap-4">
           <Link
             href="/"
-            className="group flex items-center gap-2.5"
+            className="group flex min-w-0 items-center gap-2.5"
             aria-label="RentNest home"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-800 text-brand-50 shadow-[var(--shadow-soft)] transition-transform group-hover:-rotate-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-800 text-brand-50 shadow-[var(--shadow-soft)] transition-transform group-hover:-rotate-3">
               <HomeMarkIcon width={20} height={20} />
             </span>
-            <span className="font-display text-lg font-semibold text-stone-950">
+            <span className="truncate font-display text-lg font-semibold text-stone-950 max-[360px]:hidden">
               RentNest
             </span>
           </Link>
 
-          <nav className="flex items-center gap-1 sm:gap-2">
+          <nav className="flex shrink-0 items-center gap-0.5 sm:gap-2">
             <NavLink href="/listings">Listings</NavLink>
             <NavLink href="/listings/new">Post</NavLink>
             {session?.user ? (
@@ -53,7 +53,10 @@ export async function AppNav() {
             ) : (
               <Link
                 href="/login"
-                className={buttonVariants({ size: "sm", className: "ml-1" })}
+                className={buttonVariants({
+                  size: "sm",
+                  className: "ml-0.5 max-[360px]:px-2.5 sm:ml-1",
+                })}
               >
                 Sign in
               </Link>

@@ -24,7 +24,7 @@ export function NavLink({ href, children }: NavLinkProps) {
       href={href}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+        "relative rounded-lg px-2 py-2 text-sm font-medium transition-colors sm:px-3",
         isActive
           ? "text-brand-900"
           : "text-stone-600 hover:text-stone-950",

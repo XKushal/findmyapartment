@@ -34,6 +34,53 @@ function formKey(node: unknown) {
     : null;
 }
 
+function includesText(node: unknown, text: string): boolean {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node).includes(text);
+  }
+
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  const element = node as { props?: { children?: unknown } };
+  const children = element.props?.children;
+
+  if (Array.isArray(children)) {
+    return children.some((child) => includesText(child, text));
+  }
+
+  return includesText(children, text);
+}
+
+function hasClassFragment(node: unknown, fragment: string): boolean {
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  const element = node as {
+    props?: {
+      children?: unknown;
+      className?: unknown;
+    };
+  };
+
+  if (
+    typeof element.props?.className === "string" &&
+    element.props.className.includes(fragment)
+  ) {
+    return true;
+  }
+
+  const children = element.props?.children;
+
+  if (Array.isArray(children)) {
+    return children.some((child) => hasClassFragment(child, fragment));
+  }
+
+  return hasClassFragment(children, fragment);
+}
+
 describe("ListingFilterForm", () => {
   it("renders current listing discovery filters", () => {
     const form = ListingFilterForm({
@@ -68,5 +115,15 @@ describe("ListingFilterForm", () => {
 
     expect(formKey(selectedForm)).toBe("||ROOM||||PETS_ALLOWED");
     expect(formKey(clearedForm)).toBe("||||||");
+  });
+
+  it("collapses the filter controls behind a mobile summary", () => {
+    const form = ListingFilterForm({
+      filters: {},
+    });
+
+    expect(includesText(form, "Filters")).toBe(true);
+    expect(hasClassFragment(form, "peer-checked:grid")).toBe(true);
+    expect(hasClassFragment(form, "md:grid")).toBe(true);
   });
 });

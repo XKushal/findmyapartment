@@ -52,8 +52,13 @@ export function ListingCard({
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-200 via-brand-300 to-brand-500 text-brand-900/70">
-              <PinIcon width={32} height={32} />
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[linear-gradient(135deg,var(--color-brand-100),var(--color-accent-100))] text-brand-900/75">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface/80 shadow-[var(--shadow-soft)]">
+                <PinIcon width={24} height={24} />
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-[0.14em]">
+                No photo yet
+              </span>
             </div>
           )}
           <div className="absolute left-3 top-3">

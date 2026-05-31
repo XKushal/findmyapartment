@@ -60,4 +60,10 @@ describe("ListingCard", () => {
 
     expect(includesText(card, "Quiet weekdays")).toBe(true);
   });
+
+  it("uses a housing-specific empty image state when no photo exists", () => {
+    const card = ListingCard({ listing });
+
+    expect(includesText(card, "No photo yet")).toBe(true);
+  });
 });
