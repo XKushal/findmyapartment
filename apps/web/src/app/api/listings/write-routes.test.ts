@@ -5,6 +5,7 @@ import { DELETE, PATCH } from "@/app/api/listings/[id]/route";
 import {
   archiveListing,
   createListing,
+  setListingStatus,
   updateListing,
 } from "@/features/listings/mutations";
 import { authRequired, forbidden } from "@/server/api/errors";
@@ -18,6 +19,7 @@ vi.mock("@/features/listings/queries", () => ({
 vi.mock("@/features/listings/mutations", () => ({
   archiveListing: vi.fn(),
   createListing: vi.fn(),
+  setListingStatus: vi.fn(),
   updateListing: vi.fn(),
 }));
 
@@ -52,6 +54,7 @@ describe("local listing write APIs", () => {
   beforeEach(() => {
     vi.mocked(archiveListing).mockReset();
     vi.mocked(createListing).mockReset();
+    vi.mocked(setListingStatus).mockReset();
     vi.mocked(updateListing).mockReset();
     vi.mocked(requireCurrentUser).mockResolvedValue({
       id: "507f1f77bcf86cd799439099",
@@ -225,6 +228,37 @@ describe("local listing write APIs", () => {
       listing.id,
       "507f1f77bcf86cd799439099",
     );
+  });
+
+  it("changes listing lifecycle status through PATCH", async () => {
+    vi.mocked(setListingStatus).mockResolvedValue({
+      ...listing,
+      status: "RENTED",
+    });
+
+    const response = await PATCH(
+      new Request("http://localhost:3000/api/listings/507f1f77bcf86cd799439011", {
+        method: "PATCH",
+        body: JSON.stringify({ status: "RENTED" }),
+      }),
+      { params: Promise.resolve({ id: listing.id }) },
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      data: {
+        listing: {
+          id: listing.id,
+          status: "RENTED",
+        },
+      },
+    });
+    expect(setListingStatus).toHaveBeenCalledWith(
+      listing.id,
+      "RENTED",
+      "507f1f77bcf86cd799439099",
+    );
+    expect(updateListing).not.toHaveBeenCalled();
   });
 
   it("returns AUTH_REQUIRED when creating without a session", async () => {

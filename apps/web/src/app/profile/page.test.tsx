@@ -65,6 +65,30 @@ const ownedListings = [
     updatedAt: new Date("2026-05-19T12:00:00.000Z"),
   },
   {
+    id: "507f1f77bcf86cd799439014",
+    title: "Rented townhouse",
+    type: "APARTMENT" as const,
+    status: "RENTED" as const,
+    description: "Recently leased.",
+    rent: 1250,
+    deposit: 1250,
+    utilitiesIncluded: false,
+    availableFrom: null,
+    leaseDuration: null,
+    address: null,
+    distanceToCampus: null,
+    contactEmail: null,
+    contactPhone: null,
+    bedrooms: 2,
+    bathrooms: 1,
+    petPolicy: "UNKNOWN" as const,
+    amenities: [],
+    imageUrls: [],
+    ownerId,
+    createdAt: new Date("2026-05-18T12:00:00.000Z"),
+    updatedAt: new Date("2026-05-21T12:00:00.000Z"),
+  },
+  {
     id: "507f1f77bcf86cd799439012",
     title: "Archived studio",
     type: "APARTMENT" as const,
@@ -233,6 +257,71 @@ function hasContactRequestsProp(
   );
 }
 
+function hasLifecycleStatusProp(
+  node: unknown,
+  status: string,
+  seen = new WeakSet<object>(),
+): boolean {
+  if (Array.isArray(node)) {
+    return node.some((child) => hasLifecycleStatusProp(child, status, seen));
+  }
+
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+
+  const element = node as {
+    props?: { children?: unknown; status?: unknown };
+  };
+
+  if (element.props?.status === status) {
+    return true;
+  }
+
+  return Object.values(element.props ?? {}).some((value) =>
+    hasLifecycleStatusProp(value, status, seen),
+  );
+}
+
+function hasClassFragment(
+  node: unknown,
+  fragment: string,
+  seen = new WeakSet<object>(),
+): boolean {
+  if (Array.isArray(node)) {
+    return node.some((child) => hasClassFragment(child, fragment, seen));
+  }
+
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+
+  const element = node as {
+    props?: { children?: unknown; className?: unknown };
+  };
+
+  if (
+    typeof element.props?.className === "string" &&
+    element.props.className.includes(fragment)
+  ) {
+    return true;
+  }
+
+  return Object.values(element.props ?? {}).some((value) =>
+    hasClassFragment(value, fragment, seen),
+  );
+}
+
 describe("ProfilePage", () => {
   it("redirects signed-out users to login with a callback", async () => {
     vi.mocked(auth).mockResolvedValue(null);
@@ -282,8 +371,14 @@ describe("ProfilePage", () => {
     expect(includesText(page, "Account basics")).toBe(true);
     expect(includesText(page, "Joined May 1, 2026")).toBe(true);
     expect(includesText(page, "Active room near SCSU")).toBe(true);
+    expect(includesText(page, "Rented townhouse")).toBe(true);
     expect(includesText(page, "Archived studio")).toBe(true);
+    expect(includesText(page, "RENTED")).toBe(true);
     expect(includesText(page, "ARCHIVED")).toBe(true);
+    expect(hasLifecycleStatusProp(page, "ACTIVE")).toBe(true);
+    expect(hasLifecycleStatusProp(page, "RENTED")).toBe(true);
+    expect(hasLifecycleStatusProp(page, "ARCHIVED")).toBe(true);
+    expect(hasClassFragment(page, "items-start")).toBe(true);
     expect(includesText(page, "Saved listings")).toBe(true);
     expect(hasContactRequestsProp(page)).toBe(true);
     expect(hasListingPropTitle(page, "Saved studio near campus")).toBe(true);
