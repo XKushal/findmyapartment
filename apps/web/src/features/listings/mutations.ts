@@ -65,12 +65,41 @@ export async function updateListing(
   });
 }
 
-export async function archiveListing(id: string, ownerId: string) {
-  return updateListing(
-    id,
-    {
-      status: ListingStatus.ARCHIVED,
+export async function setListingStatus(
+  id: string,
+  status: ListingStatus,
+  ownerId: string,
+) {
+  if (!hasDatabaseUrl()) {
+    return null;
+  }
+
+  const existing = await prisma.listing.findUnique({
+    where: {
+      id,
     },
-    ownerId,
-  );
+    select: {
+      id: true,
+      ownerId: true,
+    },
+  });
+
+  if (!existing) {
+    return null;
+  }
+
+  if (existing.ownerId !== ownerId) {
+    throw forbidden("Only the listing owner can change this listing status.");
+  }
+
+  return prisma.listing.update({
+    where: { id },
+    data: {
+      status,
+    },
+  });
+}
+
+export async function archiveListing(id: string, ownerId: string) {
+  return setListingStatus(id, ListingStatus.ARCHIVED, ownerId);
 }

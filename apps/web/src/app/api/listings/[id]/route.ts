@@ -4,7 +4,11 @@ import {
   serializeListing,
 } from "@/features/listings/schemas";
 import { getListingById } from "@/features/listings/queries";
-import { archiveListing, updateListing } from "@/features/listings/mutations";
+import {
+  archiveListing,
+  setListingStatus,
+  updateListing,
+} from "@/features/listings/mutations";
 import { listingNotFound } from "@/server/api/errors";
 import { readJsonBody } from "@/server/api/request";
 import { apiData, throwIfInvalid, withApiErrorHandling } from "@/server/api/responses";
@@ -43,7 +47,10 @@ export async function PATCH(request: Request, context: ListingRouteContext) {
     const body = throwIfInvalid(
       listingUpdateBodySchema.safeParse(await readJsonBody(request)),
     );
-    const listing = await updateListing(params.id, body, currentUser.id);
+    const listing =
+      Object.keys(body).length === 1 && body.status
+        ? await setListingStatus(params.id, body.status, currentUser.id)
+        : await updateListing(params.id, body, currentUser.id);
 
     if (!listing) {
       throw listingNotFound(params.id);

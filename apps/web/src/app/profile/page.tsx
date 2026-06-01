@@ -11,8 +11,8 @@ import {
   getSentContactRequestsByRequester,
 } from "@/features/contact-requests/queries";
 import { serializeContactRequest } from "@/features/contact-requests/schemas";
-import { ListingArchiveButton } from "@/features/listings/components/listing-archive-button";
 import { ListingCard } from "@/features/listings/components/listing-card";
+import { ListingStatusActions } from "@/features/listings/components/listing-status-actions";
 import { getListingsByOwner } from "@/features/listings/queries";
 import { ProfileAccountForm } from "@/features/profile/components/profile-account-form";
 import { getProfileUser } from "@/features/profile/queries";
@@ -32,7 +32,7 @@ function formatDate(date: Date) {
 }
 
 function renderProfileListingRow(listing: Listing) {
-  const isArchived = listing.status === "ARCHIVED";
+  const isActive = listing.status === "ACTIVE";
 
   return (
     <article
@@ -55,20 +55,22 @@ function renderProfileListingRow(listing: Listing) {
           ${listing.rent}/month · Updated {formatDate(listing.updatedAt)}
         </p>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Link
-          href={`/listings/${listing.id}`}
-          className={buttonVariants({ variant: "secondary", size: "sm" })}
-        >
-          View
-        </Link>
+      <div className="flex flex-wrap items-start gap-2 md:justify-end">
+        {isActive ? (
+          <Link
+            href={`/listings/${listing.id}`}
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
+          >
+            View
+          </Link>
+        ) : null}
         <Link
           href={`/listings/${listing.id}/edit`}
           className={buttonVariants({ size: "sm" })}
         >
           Edit
         </Link>
-        {!isArchived ? <ListingArchiveButton listingId={listing.id} /> : null}
+        <ListingStatusActions listingId={listing.id} status={listing.status} />
       </div>
     </article>
   );

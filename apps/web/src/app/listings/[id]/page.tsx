@@ -1,6 +1,6 @@
 import { getListingById } from "@/features/listings/queries";
-import { ListingArchiveButton } from "@/features/listings/components/listing-archive-button";
 import { ListingImageGallery } from "@/features/listings/components/listing-image-gallery";
+import { ListingStatusActions } from "@/features/listings/components/listing-status-actions";
 import { ContactRequestForm } from "@/features/contact-requests/components/contact-request-form";
 import { getProfileUser } from "@/features/profile/queries";
 import { ReviewSection } from "@/features/reviews/components/review-section";
@@ -218,7 +218,11 @@ export default async function ListingDetailPage({
                     >
                       Edit listing
                     </Link>
-                    <ListingArchiveButton listingId={listing.id} />
+                    <ListingStatusActions
+                      listingId={listing.id}
+                      redirectAfterChange="/profile"
+                      status={listing.status}
+                    />
                   </>
                 ) : session?.user?.id ? (
                   <SavedListingButton
